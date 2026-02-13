@@ -26,4 +26,12 @@ public class GlobalExceptionHandler {
                         "message", e.getMessage())
         );
     }
+
+    @ExceptionHandler(BinaryContentNotFoundException.class)
+    public ResponseEntity<?> BinaryContentNotFoundHandler(BinaryContentNotFoundException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                Map.of("status", HttpStatus.NOT_FOUND.value(),
+                        "message", e.getMessage())
+        );
+    }
 }
