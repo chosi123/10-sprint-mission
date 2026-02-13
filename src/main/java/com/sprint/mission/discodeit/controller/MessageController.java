@@ -18,13 +18,12 @@ import java.util.UUID;
 //메시지는 채널이 있어야 함.
 @AllArgsConstructor
 @RestController
-@RequestMapping("/channels/{channelId}/messages")
+@RequestMapping("/api/messages")
 public class MessageController {
     private final MessageService messageService;
 
     @RequestMapping(method = RequestMethod.POST)
     public MessageResponseDto postMessage(
-            @PathVariable UUID channelId,
             @RequestPart("dto") MessageCreateRequestDto requestDto,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
             )throws IOException {
@@ -40,24 +39,24 @@ public class MessageController {
             }
         }
 
-        return messageService.create(channelId, requestDto, attachments);
+        return messageService.create(requestDto, attachments);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{messageId}", method = RequestMethod.PATCH)
     public MessageResponseDto patchMessage(
             @RequestPart("dto") MessageUpdateRequestDto requestDto,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments,
-            @PathVariable UUID id){
-        return messageService.update(id, requestDto, attachments);
+            @PathVariable UUID messageId){
+        return messageService.update(messageId, requestDto, attachments);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public void deleteMessage(@PathVariable UUID id){
-        messageService.delete(id);
+    @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
+    public void deleteMessage(@PathVariable UUID messageId){
+        messageService.delete(messageId);
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<MessageResponseDto> getAllMessage(@PathVariable UUID channelId){
+    public List<MessageResponseDto> getAllMessage(@RequestParam UUID channelId){
         return messageService.findAllByChannelId(channelId);
     }
 

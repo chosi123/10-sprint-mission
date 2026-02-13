@@ -73,7 +73,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @RequestMapping(value = "/{userId}/status", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{userId}/userStatus", method = RequestMethod.PATCH)
     public void updateUserStatus(@PathVariable UUID userId){
         userStatusService.updateByUserId(new UserStatusUpdateRequestDto(true, userId, Instant.now()));
     }

@@ -37,9 +37,9 @@ public class BasicMessageService implements MessageService {
 
     @SneakyThrows
     @Override
-    public MessageResponseDto create(UUID channelId, MessageCreateRequestDto messageCreateRequestDto, List<MultipartFile> files) {
-        if (!channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("Channel not found with id " + channelId);
+    public MessageResponseDto create(MessageCreateRequestDto messageCreateRequestDto, List<MultipartFile> files) {
+        if (!channelRepository.existsById(messageCreateRequestDto.channelId())) {
+            throw new NoSuchElementException("Channel not found with id " + messageCreateRequestDto.channelId());
         }
         if (!userRepository.existsById(messageCreateRequestDto.authorId())) {
             throw new NoSuchElementException("Author not found with id " + messageCreateRequestDto.authorId());
@@ -62,7 +62,7 @@ public class BasicMessageService implements MessageService {
 
         Message message = new Message(
                 messageCreateRequestDto.content(),
-                channelId,
+                messageCreateRequestDto.channelId(),
                 messageCreateRequestDto.authorId(),
                 attachmentListToId
         );

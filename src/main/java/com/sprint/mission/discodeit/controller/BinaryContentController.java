@@ -15,20 +15,22 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/api/binaryContents")
 public class BinaryContentController {
     private final BinaryContentService binaryContentService;
     private final ChannelService channelService;
     private final MessageService messageService;
 
     //이미지 단순 조회(프로필, 메시지 내 파일 단일 모두 가능)
-    @RequestMapping(value = "/api/binaryContent/find", method = RequestMethod.GET)
+    @RequestMapping(value = "{binaryContentId}", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> getSimpleFiles(
-            @RequestParam UUID binaryContentId
+            @PathVariable UUID binaryContentId
     ){
         return ResponseEntity.ok(binaryContentService.find(binaryContentId));
     }
 
-    @RequestMapping(value = "/files", method = RequestMethod.GET)
+    //다건조회
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<BinaryContent>> getAllFiles(
             @RequestParam List<UUID> binaryContentIdList
     ){
@@ -37,6 +39,7 @@ public class BinaryContentController {
                 .toList());
     }
 
+    /*
     //메시지 내부 이미지 전원 조회
     @RequestMapping(value = "/channels/{channelId}/messages/{messageId}/files", method = RequestMethod.GET)
     public ResponseEntity<List<BinaryContent>> getMessagesFiles(
@@ -46,4 +49,5 @@ public class BinaryContentController {
                 .map(binaryContentService::find)
                 .toList());
     }
+    */
 }
