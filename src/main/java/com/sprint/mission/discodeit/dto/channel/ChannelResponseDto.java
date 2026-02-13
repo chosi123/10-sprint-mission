@@ -8,10 +8,10 @@ import java.util.UUID;
 
 public record ChannelResponseDto(
         UUID id,
-        Instant lastMessageTime,
+        Instant lastMessageAt,
         String name,
         String description,
         ChannelType type,
-        List<UUID> joinedUser //private 일때만 사용
+        List<UUID> participantIds //private 일때만 사용
 ) {
 }

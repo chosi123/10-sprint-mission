@@ -10,6 +10,6 @@ import java.time.Instant;
 @Mapper(componentModel = "spring")
 public interface ChannelResponseMapper {
 
-    @Mapping(source = "lastMessageTime", target = "lastMessageTime")
+    @Mapping(source = "lastMessageTime", target = "lastMessageAt")
     ChannelResponseDto toDto(Instant lastMessageTime, Channel channel);
 }
