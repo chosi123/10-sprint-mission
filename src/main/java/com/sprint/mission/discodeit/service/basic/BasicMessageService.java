@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.message.MessageUpdateRequestDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.message.MessageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -73,7 +74,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public MessageResponseDto find(UUID messageId) {
         Message targetMessage = messageRepository.findById(messageId)
-                .orElseThrow(() -> new NoSuchElementException("Message with id " + messageId + " not found"));
+                .orElseThrow(() -> new MessageNotFoundException(messageId));
 
         return messageResponseMapper.toDto(targetMessage);
     }
@@ -98,7 +99,7 @@ public class BasicMessageService implements MessageService {
     ) {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() ->
-                        new NoSuchElementException("Message with id " + id + " not found")
+                        new MessageNotFoundException(id)
                 );
 
         boolean hasNewFiles =
@@ -147,7 +148,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public void delete(UUID messageId) {
         if (!messageRepository.existsById(messageId)) {
-            throw new NoSuchElementException("Message with id " + messageId + " not found");
+            throw new MessageNotFoundException(messageId);
         }
 
         //내부 파일들 바이너리레포에서 삭제

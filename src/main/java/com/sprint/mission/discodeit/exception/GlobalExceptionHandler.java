@@ -10,7 +10,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({BinaryContentNotFoundException.class, ChannelNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler({BinaryContentNotFoundException.class, ChannelNotFoundException.class, UserNotFoundException.class, MessageNotFoundException.class})
     public ResponseEntity<?> NotFoundHandler(UserNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
