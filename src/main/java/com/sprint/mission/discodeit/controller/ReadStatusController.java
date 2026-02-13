@@ -1,9 +1,6 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.readstatus.IsMessageReadResponseDto;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequestDto;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusResponseDto;
-import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequestDto;
+import com.sprint.mission.discodeit.dto.readstatus.*;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,36 +11,37 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/api/readStatuses")
 public class ReadStatusController {
     private final ReadStatusService readStatusService;
 
-    @RequestMapping(value = "/channels/{channelId}/readstatus", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ReadStatusResponseDto createReadStatus(
-            @PathVariable UUID channelId,
-            @RequestParam UUID userId
+            @RequestBody ReadStatusCreateRequestDto dto
     ){
-        return readStatusService.create(new ReadStatusCreateRequestDto(userId, channelId));
+        return readStatusService.create(dto);
     }
 
-    @RequestMapping(value = "/channels/{channelId}/readstatus", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{readStatusId}", method = RequestMethod.PATCH)
     public ReadStatusResponseDto updateReadStatus(
-            @PathVariable UUID channelId,
-            @RequestParam UUID userId
+            @PathVariable UUID readStatusId
     ){
-        return readStatusService.update(new ReadStatusUpdateRequestDto(channelId, userId, Instant.now()));
+        ReadStatusResponseDto responseDto = readStatusService.find(readStatusId);
+        return readStatusService.update(new ReadStatusUpdateRequestDto(responseDto.userId(), responseDto.channelId(), Instant.now()));
     }
 
-    @RequestMapping(value = "/channels/{channelId}/messages/{messageId}/readstatus", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public IsMessageReadResponseDto getReadStatus(
-            @PathVariable UUID messageId,
-            @RequestParam UUID userId
-    ){
-        return readStatusService.findByUserIdAndMessageId(userId, messageId);
+            @RequestBody IsMessageReadRequestDto dto
+            ){
+        return readStatusService.findByUserIdAndMessageId(dto.userId(), dto.messageId());
     }
 
+    /*
     @RequestMapping(value = "/{userId}/readstatus")
     public List<IsMessageReadResponseDto> getAllReadStatus(@PathVariable UUID userId){
         return readStatusService.findAllByUserId(userId);
     }
+     */
 
 }
