@@ -2,8 +2,7 @@ package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
-import com.sprint.mission.discodeit.service.ChannelService;
-import com.sprint.mission.discodeit.service.MessageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +13,13 @@ import java.util.UUID;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/binaryContents")
+@Tag(name = "BinaryContent", description = "파일 관련 API")
 public class BinaryContentController {
     private final BinaryContentService binaryContentService;
-    private final ChannelService channelService;
-    private final MessageService messageService;
 
     //이미지 단순 조회(프로필, 메시지 내 파일 단일 모두 가능)
     @RequestMapping(value = "{binaryContentId}", method = RequestMethod.GET)
-    public ResponseEntity<BinaryContent> getSimpleFiles(
+    public ResponseEntity<BinaryContent> find(
             @PathVariable UUID binaryContentId
     ){
         return ResponseEntity.ok(binaryContentService.find(binaryContentId));
