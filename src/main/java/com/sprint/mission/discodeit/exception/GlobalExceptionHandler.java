@@ -10,8 +10,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> UserNotFoundHandler(UserNotFoundException e) {
+    @ExceptionHandler({BinaryContentNotFoundException.class, ChannelNotFoundException.class, UserNotFoundException.class})
+    public ResponseEntity<?> NotFoundHandler(UserNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
                         "status", HttpStatus.NOT_FOUND.value(),
@@ -27,11 +27,13 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(BinaryContentNotFoundException.class)
-    public ResponseEntity<?> BinaryContentNotFoundHandler(BinaryContentNotFoundException e){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                Map.of("status", HttpStatus.NOT_FOUND.value(),
+    @ExceptionHandler(PrivateChannelUpdateException.class)
+    public ResponseEntity<?> PrivateChannelUpdateHandler(PrivateChannelUpdateException e){
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
+                Map.of("status", HttpStatus.NOT_ACCEPTABLE.value(),
                         "message", e.getMessage())
         );
     }
+
+
 }

@@ -39,7 +39,6 @@ public class BinaryContentController {
                             schema = @Schema(implementation = BinaryContent.class)
                     )
             ),
-
             @ApiResponse(
                     responseCode = "404",
                     description = "파일을 찾을 수 없음",
@@ -49,7 +48,7 @@ public class BinaryContentController {
                                     value = "BinaryContent with id {binaryContentId} not found"
                             )
                     )
-            ),
+            )
     })
     @RequestMapping(value = "{binaryContentId}", method = RequestMethod.GET)
     public ResponseEntity<BinaryContent> find(

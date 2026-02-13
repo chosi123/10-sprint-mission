@@ -7,6 +7,8 @@ import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequestDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.DefaultEntity;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.mapper.channel.ChannelResponseMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
@@ -66,9 +68,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelResponseDto find(UUID channelId) {
         Channel channel = channelRepository.findById(channelId)
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + channelId + " not found"));
-
-
+                .orElseThrow(() -> new ChannelNotFoundException(channelId));
 
         return channelResponseMapper.toDto(findLastMessageTime(channelId), channel);
     }
@@ -93,9 +93,9 @@ public class BasicChannelService implements ChannelService {
     @Override
     public ChannelResponseDto update(ChannelUpdateRequestDto updateRequestDto) {
         Channel channel = channelRepository.findById(updateRequestDto.channelId())
-                .orElseThrow(() -> new NoSuchElementException("Channel with id " + updateRequestDto.channelId() + " not found"));
+                .orElseThrow(() -> new ChannelNotFoundException(updateRequestDto.channelId()));
 
-        if(channel.getType()==PRIVATE) throw new AssertionError("Cannot update private channel");
+        if(channel.getType()==PRIVATE) throw new PrivateChannelUpdateException();
 
         channel.update(updateRequestDto.newName(), updateRequestDto.newDescription());
 
@@ -107,7 +107,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     public void delete(UUID channelId) {
         if (!channelRepository.existsById(channelId)) {
-            throw new NoSuchElementException("Channel with id " + channelId + " not found");
+            throw new ChannelNotFoundException(channelId);
         }
 
         //채널에 속한 메시지들 삭제
