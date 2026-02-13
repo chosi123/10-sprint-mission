@@ -35,7 +35,7 @@ public class BinaryContentController {
                     responseCode = "200",
                     description = "파일 조회 성공",
                     content = @Content(
-                            mediaType = "string/byte",
+                            mediaType = "*/*",
                             schema = @Schema(implementation = BinaryContent.class)
                     )
             ),
@@ -43,7 +43,7 @@ public class BinaryContentController {
                     responseCode = "404",
                     description = "파일을 찾을 수 없음",
                     content = @Content(
-                            mediaType = "string/byte",
+                            mediaType = "*/*",
                             examples = @ExampleObject(
                                     value = "BinaryContent with id {binaryContentId} not found"
                             )

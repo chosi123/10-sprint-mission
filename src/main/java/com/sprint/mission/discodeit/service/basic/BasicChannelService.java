@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static com.sprint.mission.discodeit.entity.ChannelType.PRIVATE;
@@ -44,17 +43,17 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponseDto createPublicChannel(PublicChannelCreateRequestDto requestDto) {
+    public Channel createPublicChannel(PublicChannelCreateRequestDto requestDto) {
         Channel channel = new Channel(PUBLIC, requestDto.name(), requestDto.description());
         channelRepository.save(channel);
 
-        return channelResponseMapper.toDto(findLastMessageTime(channel.getId()), channel);
+        return channel;
     }
 
     @Override
-    public ChannelResponseDto createPrivateChannel(PrivateChannelCreateRequestDto requestDto) {
+    public Channel createPrivateChannel(PrivateChannelCreateRequestDto requestDto) {
         Channel channel = new Channel(PRIVATE, null, null);
-        requestDto.userIds()
+        requestDto.participantIds()
                 .forEach(user->{
                     channel.join(user);
                     readStatusRepository.save(new ReadStatus(user, channel.getId()));
@@ -62,7 +61,7 @@ public class BasicChannelService implements ChannelService {
 
         channelRepository.save(channel);
 
-        return channelResponseMapper.toDto(findLastMessageTime(channel.getId()), channel);
+        return channel;
     }
 
     @Override
@@ -91,9 +90,9 @@ public class BasicChannelService implements ChannelService {
     }
 
     @Override
-    public ChannelResponseDto update(ChannelUpdateRequestDto updateRequestDto) {
-        Channel channel = channelRepository.findById(updateRequestDto.channelId())
-                .orElseThrow(() -> new ChannelNotFoundException(updateRequestDto.channelId()));
+    public Channel update(UUID channelId, ChannelUpdateRequestDto updateRequestDto) {
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() -> new ChannelNotFoundException(channelId));
 
         if(channel.getType()==PRIVATE) throw new PrivateChannelUpdateException();
 
@@ -101,7 +100,7 @@ public class BasicChannelService implements ChannelService {
 
         channelRepository.save(channel);
 
-        return channelResponseMapper.toDto(findLastMessageTime(channel.getId()), channel);
+        return channel;
     }
 
     @Override

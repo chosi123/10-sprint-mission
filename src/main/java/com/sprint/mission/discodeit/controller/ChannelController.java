@@ -5,8 +5,10 @@ import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequestDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequestDto;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequestDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.service.ChannelService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,12 +36,12 @@ public class ChannelController {
                     description = "공개 채널 생성 성공",
                     content = @Content(
                             mediaType = "*/*",
-                            schema = @Schema(implementation = ChannelResponseDto.class)
+                            schema = @Schema(implementation = Channel.class)
                     )
             )
     })
     @RequestMapping(value = "/public", method = RequestMethod.POST)
-    public ResponseEntity<ChannelResponseDto> createPublicChannel(
+    public ResponseEntity<Channel> createPublicChannel(
             @RequestBody PublicChannelCreateRequestDto requestDto
     ){
         return ResponseEntity.status(201).body(channelService.createPublicChannel(requestDto));
@@ -52,12 +54,12 @@ public class ChannelController {
                     description = "비밀 채널 생성 성공",
                     content = @Content(
                             mediaType = "*/*",
-                            schema = @Schema(implementation = BinaryContent.class)
+                            schema = @Schema(implementation = Channel.class)
                     )
             )
     })
     @RequestMapping(value = "/private", method = RequestMethod.POST)
-    public ResponseEntity<ChannelResponseDto> createPrivateChannel(
+    public ResponseEntity<Channel> createPrivateChannel(
             @RequestBody PrivateChannelCreateRequestDto requestDto
     ){
         return ResponseEntity.status(201).body(channelService.createPrivateChannel(requestDto));
@@ -70,7 +72,7 @@ public class ChannelController {
                     description = "채널 정보 수정 성공",
                     content = @Content(
                             mediaType = "*/*",
-                            schema = @Schema(implementation = ChannelResponseDto.class)
+                            schema = @Schema(implementation = Channel.class)
                     )
             ),
             @ApiResponse(
@@ -95,9 +97,8 @@ public class ChannelController {
             )
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<ChannelResponseDto> updateChannel(@RequestBody PublicChannelCreateRequestDto requestDto, @PathVariable UUID id){
-        return ResponseEntity.status(200).body(channelService.update(new ChannelUpdateRequestDto(id,
-                requestDto.name(), requestDto.description())));
+    public ResponseEntity<Channel> updateChannel(@RequestBody ChannelUpdateRequestDto requestDto, @PathVariable UUID id){
+        return ResponseEntity.status(200).body(channelService.update(id, requestDto));
     }
 
     @Operation(summary ="채널 삭제", operationId = "delete_2")
@@ -130,7 +131,7 @@ public class ChannelController {
                     description = "유저가 참여중인 모든 채널 조회",
                     content = @Content(
                             mediaType = "*/*",
-                            schema = @Schema(implementation = ChannelResponseDto.class)
+                            array = @ArraySchema(schema = @Schema(implementation = ChannelResponseDto.class))
                     )
             )
     })

@@ -5,6 +5,8 @@ import com.sprint.mission.discodeit.dto.message.MessageResponseDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequestDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.message.MessageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -36,10 +38,10 @@ public class BasicMessageService implements MessageService {
     @Override
     public MessageResponseDto create(MessageCreateRequestDto messageCreateRequestDto, List<MultipartFile> files) {
         if (!channelRepository.existsById(messageCreateRequestDto.channelId())) {
-            throw new NoSuchElementException("Channel not found with id " + messageCreateRequestDto.channelId());
+            throw new ChannelNotFoundException(messageCreateRequestDto.channelId());
         }
         if (!userRepository.existsById(messageCreateRequestDto.authorId())) {
-            throw new NoSuchElementException("Author not found with id " + messageCreateRequestDto.authorId());
+            throw new UserNotFoundException("Author not found with id " + messageCreateRequestDto.authorId());
         }
 
         List<MultipartFile> safeFiles = Optional.ofNullable(files).orElse(List.of());
