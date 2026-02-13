@@ -25,12 +25,13 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @RestController
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
     //사용자 등록
-    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public UserResponseDto postUser(
             @RequestPart("dto") UserCreateRequestDto dto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
@@ -46,9 +47,9 @@ public class UserController {
     }
 
     //사용자 정보 수정
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH)
     public UserResponseDto patchUser(
-            @PathVariable UUID id,
+            @PathVariable UUID userId,
             @RequestPart("dto") UserCreateRequestDto dto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
     ) throws IOException {
@@ -59,21 +60,21 @@ public class UserController {
             profileImage.transferTo(savePath);
         }
 
-        return userService.update(new UserUpdateRequestDto(id, dto.username(), dto.email(), dto.password()), profileImage);
+        return userService.update(new UserUpdateRequestDto(userId, dto.username(), dto.email(), dto.password()), profileImage);
     }
 
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
-    public void deleteUser(@PathVariable UUID id) {
-        userService.delete(id);
+    @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
+    public void deleteUser(@PathVariable UUID userId) {
+        userService.delete(userId);
     }
 
-    @RequestMapping(value = "/api/user/findAll", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<UserResponseDto>> getAllUser(){
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @RequestMapping(value = "/users/{id}/status", method = RequestMethod.PATCH)
-    public void updateUserStatus(@PathVariable UUID id){
-        userStatusService.updateByUserId(new UserStatusUpdateRequestDto(true, id, Instant.now()));
+    @RequestMapping(value = "/{userId}/status", method = RequestMethod.PATCH)
+    public void updateUserStatus(@PathVariable UUID userId){
+        userStatusService.updateByUserId(new UserStatusUpdateRequestDto(true, userId, Instant.now()));
     }
 }
