@@ -19,10 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +48,7 @@ public class BasicMessageService implements MessageService {
                 .filter(file -> file != null && !file.isEmpty())
                 .map(file -> {
                     try {
-                        BinaryContent b = new BinaryContent(file.getBytes());
+                        BinaryContent b = new BinaryContent(Base64.getEncoder().encodeToString(file.getBytes()));
                         binaryContentRepository.save(b);
                         return b.getId();
                     } catch (IOException e) {
@@ -120,7 +117,7 @@ public class BasicMessageService implements MessageService {
                     .map(f -> {
                         try {
                             BinaryContent saved =
-                                    binaryContentRepository.save(new BinaryContent(f.getBytes()));
+                                    binaryContentRepository.save(new BinaryContent(Base64.getEncoder().encodeToString(f.getBytes())));
                             return saved.getId();
                         } catch (IOException e) {
                             throw new ResponseStatusException(

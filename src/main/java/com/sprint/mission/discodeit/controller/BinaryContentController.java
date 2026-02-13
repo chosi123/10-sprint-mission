@@ -1,11 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
-import com.sprint.mission.discodeit.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,23 +29,11 @@ public class BinaryContentController {
 
     //다건조회
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<BinaryContent>> getAllFiles(
-            @RequestParam List<UUID> binaryContentIdList
+    public ResponseEntity<List<BinaryContent>> findAllByIdIn(
+            @RequestParam List<UUID> binaryContentIds
     ){
-        return ResponseEntity.ok(binaryContentIdList.stream()
+        return ResponseEntity.ok(binaryContentIds.stream()
                 .map(binaryContentService::find)
                 .toList());
     }
-
-    /*
-    //메시지 내부 이미지 전원 조회
-    @RequestMapping(value = "/channels/{channelId}/messages/{messageId}/files", method = RequestMethod.GET)
-    public ResponseEntity<List<BinaryContent>> getMessagesFiles(
-            @PathVariable UUID messageId
-    ){
-        return ResponseEntity.ok(messageService.find(messageId).attachments().stream()
-                .map(binaryContentService::find)
-                .toList());
-    }
-    */
 }

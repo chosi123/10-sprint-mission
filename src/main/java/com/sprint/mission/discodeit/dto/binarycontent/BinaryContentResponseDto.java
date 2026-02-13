@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record BinaryContentResponseDto(
         UUID id,
-        byte[] content
+        String content
 ) {
 }
