@@ -51,7 +51,7 @@ public class BasicMessageService implements MessageService {
                 .filter(file -> file != null && !file.isEmpty())
                 .map(file -> {
                     try {
-                        BinaryContent b = new BinaryContent(Base64.getEncoder().encodeToString(file.getBytes()));
+                        BinaryContent b = new BinaryContent(file.getBytes());
                         binaryContentRepository.save(b);
                         return b.getId();
                     } catch (IOException e) {
@@ -94,8 +94,7 @@ public class BasicMessageService implements MessageService {
     @Override
     public MessageResponseDto update(
             UUID id,
-            MessageUpdateRequestDto dto,
-            List<MultipartFile> files
+            MessageUpdateRequestDto requestDto, List<MultipartFile> files
     ) {
         Message message = messageRepository.findById(id)
                 .orElseThrow(() ->
@@ -120,7 +119,7 @@ public class BasicMessageService implements MessageService {
                     .map(f -> {
                         try {
                             BinaryContent saved =
-                                    binaryContentRepository.save(new BinaryContent(Base64.getEncoder().encodeToString(f.getBytes())));
+                                    binaryContentRepository.save(new BinaryContent(f.getBytes()));
                             return saved.getId();
                         } catch (IOException e) {
                             throw new ResponseStatusException(
@@ -136,7 +135,7 @@ public class BasicMessageService implements MessageService {
         // 3️⃣ 업데이트
         // 👉 새 파일이 없으면 attachments는 건드리지 않음
         message.update(
-                dto.newContent(),
+                requestDto.newContent(),
                 hasNewFiles ? newAttachmentIds : message.getAttachments()
         );
 

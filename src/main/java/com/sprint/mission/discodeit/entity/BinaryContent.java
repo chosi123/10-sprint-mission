@@ -12,9 +12,9 @@ public class BinaryContent implements Serializable {
     private final UUID id;
     private final Instant createdAt;
     private final String contentType;
-    private final String bytes;
+    private final byte[] bytes;
 
-    public BinaryContent(String bytes){
+    public BinaryContent(byte[] bytes){
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.bytes = bytes;

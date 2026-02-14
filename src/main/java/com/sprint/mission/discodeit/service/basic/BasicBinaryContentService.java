@@ -19,7 +19,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     public final BinaryContentResponseMapper binaryContentResponseMapper;
 
     @Override
-    public BinaryContent create(String content) {
+    public BinaryContent create(byte[] content) {
         BinaryContent binaryContent = binaryContentRepository.save(new BinaryContent(content));
 
         return binaryContent;
