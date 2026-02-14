@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.channel.ChannelResponseDto;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequestDto;
 import com.sprint.mission.discodeit.dto.message.MessageResponseDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequestDto;
@@ -53,9 +52,9 @@ public class MessageController {
             ),
 
     })
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<MessageResponseDto> postMessage(
-            @RequestPart("dto") MessageCreateRequestDto requestDto,
+            @RequestPart(value = "messageCreateRequest") MessageCreateRequestDto requestDto,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
             )throws IOException {
 
@@ -95,10 +94,9 @@ public class MessageController {
     })
     @RequestMapping(value = "/{messageId}", method = RequestMethod.PATCH)
     public ResponseEntity<MessageResponseDto> patchMessage(
-            @RequestPart("dto") MessageUpdateRequestDto requestDto,
-            @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments,
+            @RequestBody MessageUpdateRequestDto requestDto,
             @PathVariable UUID messageId){
-        return ResponseEntity.ok(messageService.update(messageId, requestDto, attachments));
+        return ResponseEntity.ok(messageService.update(messageId, requestDto, null));
     }
 
     @Operation(summary = "메시지 삭제", operationId = "delete_1")
