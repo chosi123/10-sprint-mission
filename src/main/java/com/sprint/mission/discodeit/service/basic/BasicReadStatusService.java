@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.readstatus.IsMessageReadResponseDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequestDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusResponseDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequestDto;
-import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.mapper.channel.ChannelResponseMapper;
@@ -102,12 +101,12 @@ class BasicReadStatusService implements ReadStatusService {
 
 
     @Override
-    public ReadStatusResponseDto update(ReadStatusUpdateRequestDto readStatusUpdateRequestDto) {
+    public ReadStatusResponseDto update(UUID id, ReadStatusUpdateRequestDto readStatusUpdateRequestDto) {
         ReadStatus targetReadStatus = readStatusRepository.findByUserIdAndChannelId(
                 readStatusUpdateRequestDto.userId(), readStatusUpdateRequestDto.channelId())
                         .orElseThrow(()-> new AssertionError("ReadStatus not found"));
 
-        targetReadStatus.setLastUserReadTimeInChannel(readStatusUpdateRequestDto.lastRead());
+        targetReadStatus.setLastUserReadTimeInChannel(readStatusUpdateRequestDto.newLastReadAt());
 
         readStatusRepository.save(targetReadStatus);
 
