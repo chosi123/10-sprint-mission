@@ -18,7 +18,7 @@ public class ReadStatusController {
     private final ReadStatusService readStatusService;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<ReadStatusResponseDto> createReadStatus(
+    public ResponseEntity<ReadStatusResponseDto> create_1(
             @RequestBody ReadStatusCreateRequestDto dto
     ){
         return ResponseEntity.status(201).body(readStatusService.create(dto));

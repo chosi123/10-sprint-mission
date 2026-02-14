@@ -6,6 +6,8 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusResponseDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequestDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.channel.ChannelResponseMapper;
 import com.sprint.mission.discodeit.mapper.readstatus.ReadStatusResponseMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -57,7 +59,7 @@ class BasicReadStatusService implements ReadStatusService {
     @Override
     public ReadStatusResponseDto find(UUID id) {
         ReadStatus readStatus = readStatusRepository.findById(id)
-                .orElseThrow(() -> new AssertionError("ReadStatus not found"));
+                .orElseThrow(() -> new ReadStatusNotFoundException());
         return readStatusResponseMapper.toDto(readStatus);
     }
 
@@ -67,7 +69,7 @@ class BasicReadStatusService implements ReadStatusService {
                 .orElseThrow();
 
         ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(userId, message.getChannelId())
-                .orElseThrow(() -> new AssertionError("ReadStatus not found"));
+                .orElseThrow(() -> new ReadStatusNotFoundException());
 
         boolean isRead = message.getCreatedAt().isBefore(readStatus.getLastUserReadTimeInChannel());
 
@@ -76,7 +78,7 @@ class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public List<IsMessageReadResponseDto> findAllByUserId(UUID userId) {
-        if (!userRepository.existsById(userId)) throw new AssertionError("User not found");
+        if (!userRepository.existsById(userId)) throw new UserNotFoundException("");
 
         List<ReadStatus> statusList = readStatusRepository.findAll().stream()
                 .filter(readStatus -> readStatus.getUserID().equals(userId))
@@ -102,9 +104,8 @@ class BasicReadStatusService implements ReadStatusService {
 
     @Override
     public ReadStatusResponseDto update(UUID id, ReadStatusUpdateRequestDto readStatusUpdateRequestDto) {
-        ReadStatus targetReadStatus = readStatusRepository.findByUserIdAndChannelId(
-                readStatusUpdateRequestDto.userId(), readStatusUpdateRequestDto.channelId())
-                        .orElseThrow(()-> new AssertionError("ReadStatus not found"));
+        ReadStatus targetReadStatus = readStatusRepository.findById(id)
+                        .orElseThrow(()-> new ReadStatusNotFoundException(id));
 
         targetReadStatus.setLastUserReadTimeInChannel(readStatusUpdateRequestDto.newLastReadAt());
 

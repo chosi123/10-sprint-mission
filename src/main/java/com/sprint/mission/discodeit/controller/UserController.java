@@ -4,13 +4,10 @@ import com.sprint.mission.discodeit.dto.user.UserCreateRequestDto;
 import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequestDto;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequestDto;
-import com.sprint.mission.discodeit.mapper.binarycontent.BinaryContentResponseMapper;
-import com.sprint.mission.discodeit.mapper.user.UserResponseMapper;
-import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,15 +23,16 @@ import java.util.UUID;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "User", description = "유저 관련 API")
 public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
 
     //사용자 등록
-    @RequestMapping(method = RequestMethod.POST)
-    public UserResponseDto postUser(
-            @RequestPart("dto") UserCreateRequestDto dto,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    @RequestMapping(method = RequestMethod.POST, consumes = "multipart/form-data")
+    public UserResponseDto create(
+            @RequestPart("userCreateRequest") UserCreateRequestDto dto,
+            @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
         //영속화
         if(profileImage != null && !profileImage.isEmpty()){
@@ -47,8 +45,8 @@ public class UserController {
     }
 
     //사용자 정보 수정
-    @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH)
-    public UserResponseDto patchUser(
+    @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH, consumes = "multipart/form-data")
+    public UserResponseDto update(
             @PathVariable UUID userId,
             @RequestPart("dto") UserCreateRequestDto dto,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
@@ -64,17 +62,18 @@ public class UserController {
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
-    public void deleteUser(@PathVariable UUID userId) {
+    public void delete(@PathVariable UUID userId) {
         userService.delete(userId);
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<UserResponseDto>> getAllUser(){
+    public ResponseEntity<List<UserResponseDto>> findAll(){
         return ResponseEntity.ok(userService.findAll());
     }
 
     @RequestMapping(value = "/{userId}/userStatus", method = RequestMethod.PATCH)
-    public void updateUserStatus(@PathVariable UUID userId){
+    public ResponseEntity<Void> updateUserStatusByUserId(@PathVariable UUID userId){
         userStatusService.updateByUserId(new UserStatusUpdateRequestDto(true, userId, Instant.now()));
+        return ResponseEntity.noContent().build();
     }
 }
