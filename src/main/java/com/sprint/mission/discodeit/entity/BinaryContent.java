@@ -14,10 +14,10 @@ public class BinaryContent implements Serializable {
     private final String contentType;
     private final byte[] bytes;
 
-    public BinaryContent(byte[] bytes){
+    public BinaryContent(byte[] bytes, String contentType){
         this.id = UUID.randomUUID();
         this.createdAt = Instant.now();
         this.bytes = bytes;
-        this.contentType = "image/png";
+        this.contentType = contentType;
     }
 }

@@ -27,7 +27,7 @@ public class BinaryContentController {
 
     //이미지 단순 조회(프로필, 메시지 내 파일 단일 모두 가능)
     @Operation(
-            summary ="단일 이미지 조회",
+            summary ="단일 파일 조회",
             operationId = "find"
     )
     @ApiResponses(value = {
@@ -59,7 +59,7 @@ public class BinaryContentController {
 
     //다건조회
     @Operation(
-            summary ="다수 이미지 조회",
+            summary ="다수 파일 조회",
             operationId = "findAllByIdIn"
     )
     @ApiResponses(value = {

@@ -20,7 +20,7 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     @Override
     public BinaryContent create(byte[] content) {
-        BinaryContent binaryContent = binaryContentRepository.save(new BinaryContent(content));
+        BinaryContent binaryContent = binaryContentRepository.save(new BinaryContent(content, "image/png"));
 
         return binaryContent;
     }

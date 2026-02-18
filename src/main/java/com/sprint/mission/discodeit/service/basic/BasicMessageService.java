@@ -52,15 +52,7 @@ public class BasicMessageService implements MessageService {
 
         List<UUID> attachmentListToId = safeFiles.stream()
                 .filter(file -> file != null && !file.isEmpty())
-                .map(file -> {
-                    try {
-                        BinaryContent b = new BinaryContent(file.getBytes());
-                        binaryContentRepository.save(b);
-                        return b.getId();
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failed to read multipart file", e);
-                    }
-                })
+                .map(file -> toBinaryContent(file).getId())
                 .toList();
 
         Message message = new Message(
@@ -132,19 +124,7 @@ public class BasicMessageService implements MessageService {
             // 2️⃣ 새 첨부 저장
             newAttachmentIds = files.stream()
                     .filter(f -> f != null && !f.isEmpty())
-                    .map(f -> {
-                        try {
-                            BinaryContent saved =
-                                    binaryContentRepository.save(new BinaryContent(f.getBytes()));
-                            return saved.getId();
-                        } catch (IOException e) {
-                            throw new ResponseStatusException(
-                                    HttpStatus.INTERNAL_SERVER_ERROR,
-                                    "Failed to read attachment",
-                                    e
-                            );
-                        }
-                    })
+                    .map(f -> toBinaryContent(f).getId())
                     .toList();
         }
 
@@ -173,4 +153,17 @@ public class BasicMessageService implements MessageService {
         // 메시지레포에서 삭제
         messageRepository.deleteById(messageId);
     }
+
+    private BinaryContent toBinaryContent(MultipartFile file) {
+        try {
+            return binaryContentRepository.save(new BinaryContent(file.getBytes(), file.getContentType()));
+        } catch (IOException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Failed to read attachment",
+                    e
+            );
+        }
+    }
+
 }

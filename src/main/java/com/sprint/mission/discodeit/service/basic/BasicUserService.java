@@ -42,7 +42,10 @@ public class BasicUserService implements UserService {
         User user;
         //이미지 존재여부 분기
         if(profileImageFile != null){
-            BinaryContent profileImage = new BinaryContent(profileImageFile.getBytes());
+            if(profileImageFile.getContentType() == null || !profileImageFile.getContentType().startsWith("image/"))
+                throw new IllegalArgumentException("Invalid image file");
+
+            BinaryContent profileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType());
             binaryContentRepository.save(profileImage);
 
             user = new User(userCreateRequestDto.username(),
@@ -120,7 +123,7 @@ public class BasicUserService implements UserService {
             if(user.getProfileId() != null){
                 binaryContentRepository.deleteById(user.getProfileId());
             }
-            newProfileImage = new BinaryContent(profileImageFile.getBytes());
+            newProfileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType());
             binaryContentRepository.save(newProfileImage);
             user.setProfileId(newProfileImage.getId());
 
