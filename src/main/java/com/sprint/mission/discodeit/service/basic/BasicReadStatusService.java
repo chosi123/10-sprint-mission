@@ -38,8 +38,8 @@ class BasicReadStatusService implements ReadStatusService {
     @Override
     public ReadStatusResponseDto create(ReadStatusCreateRequestDto readStatusCreateRequestDto) {
         //못 찾으면 예외 발생시킴
-        if(!userRepository.existsById(readStatusCreateRequestDto.userId())) throw new AssertionError("User not found");
-        if(!channelRepository.existsById(readStatusCreateRequestDto.channelId())) throw new AssertionError("Channel not found");
+        if(!userRepository.existsById(readStatusCreateRequestDto.userId())) throw new UserNotFoundException(readStatusCreateRequestDto.userId());
+        if(!channelRepository.existsById(readStatusCreateRequestDto.channelId())) throw new ChannelNotFoundException(readStatusCreateRequestDto.channelId());
 
         //이미 존재하면 예외
         if(readStatusRepository.findAll().stream()
