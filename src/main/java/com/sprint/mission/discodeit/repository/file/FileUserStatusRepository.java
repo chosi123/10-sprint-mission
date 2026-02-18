@@ -103,8 +103,12 @@ public class FileUserStatusRepository implements UserStatusRepository {
 
     @Override
     public Optional<UserStatus> findByUserId(UUID userId) {
-        loadIndex().get(userId);
-        return findById(index.get(userId));
+        this.index = loadIndex();
+        UUID statusId = index.get(userId);
+        if (statusId == null) {
+            return Optional.empty();
+        }
+        return findById(statusId);
     }
 
     @Override
