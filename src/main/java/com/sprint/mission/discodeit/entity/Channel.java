@@ -17,7 +17,7 @@ public class Channel extends DefaultEntity implements Serializable {
     private ChannelType type;
     private String name = null;
     private String description = null;
-    private List<UUID> joinedUser = null;
+    private List<UUID> participantIds = null;
 
     public Channel(ChannelType type, String name, String description) {
         super();
@@ -25,7 +25,7 @@ public class Channel extends DefaultEntity implements Serializable {
         this.type = type;
 
         if(type == PRIVATE){
-            joinedUser = new ArrayList<>();
+            participantIds = new ArrayList<>();
         }
         else{
             this.name = name;
@@ -53,10 +53,10 @@ public class Channel extends DefaultEntity implements Serializable {
     }
 
     public void join(UUID userId){
-        joinedUser.add(userId);
+        participantIds.add(userId);
     }
 
     public void leave(UUID userId){
-        if(!joinedUser.contains(userId)) joinedUser.remove(userId);
+        if(!participantIds.contains(userId)) participantIds.remove(userId);
     }
 }
