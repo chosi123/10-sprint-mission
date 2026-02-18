@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusResponseDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequestDto;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
+import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.channel.ChannelResponseMapper;
@@ -46,7 +47,7 @@ class BasicReadStatusService implements ReadStatusService {
                 .anyMatch(readStatus -> readStatus.getChannelID().equals(readStatusCreateRequestDto.channelId()) &&
                         readStatus.getUserID().equals(readStatusCreateRequestDto.userId()) ))
         {
-            throw new AssertionError("ReadStatus already exists");
+            return readStatusResponseMapper.toDto(readStatusRepository.findByUserIdAndChannelId(readStatusCreateRequestDto.userId(), readStatusCreateRequestDto.channelId()).get());
         }
 
         //생성 및 저장

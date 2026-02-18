@@ -81,7 +81,7 @@ public class BasicChannelService implements ChannelService {
                     if (channel.getType() == PUBLIC) {
                         dtoList.add(find(channel.getId()));
                     }
-                    else if(channel.getJoinedUser().contains(userId)){
+                    else if(channel.getParticipantIds().contains(userId)){
                         dtoList.add(find(channel.getId()));
                     }
         });
