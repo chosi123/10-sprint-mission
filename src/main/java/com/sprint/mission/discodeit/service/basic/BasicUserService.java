@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -58,6 +61,14 @@ public class BasicUserService implements UserService {
         //userStatus 생성
         UserStatus userStatus = new UserStatus(user.getId());
         userStatusRepository.save(userStatus);
+
+        //영속화
+        if(profileImageFile != null && !profileImageFile.isEmpty()){
+            String fileName = profileImageFile.getOriginalFilename();
+            Path savePath = Paths.get("./upload/" + fileName);
+            Files.createDirectories(savePath.getParent());
+            profileImageFile.transferTo(savePath);
+        }
 
         //저장된 데이터 리턴
         return userResponseMapper.toDto(user, userStatus);
@@ -105,7 +116,7 @@ public class BasicUserService implements UserService {
             user.setPassword(userUpdateRequestDto.newPassword());
             anyValueUpdated = true;
         }
-        if(profileImageFile != null){
+        if(profileImageFile != null && !profileImageFile.isEmpty()){
             if(user.getProfileId() != null){
                 binaryContentRepository.deleteById(user.getProfileId());
             }
@@ -113,6 +124,11 @@ public class BasicUserService implements UserService {
             binaryContentRepository.save(newProfileImage);
             user.setProfileId(newProfileImage.getId());
 
+            //영속화
+            String fileName = profileImageFile.getOriginalFilename();
+            Path savePath = Paths.get("./upload/" + fileName);
+            Files.createDirectories(savePath.getParent());
+            profileImageFile.transferTo(savePath);
         }
         if (anyValueUpdated) {
             user.isUpdated();

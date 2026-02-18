@@ -50,13 +50,6 @@ public class UserController {
             @RequestPart("userCreateRequest") UserCreateRequestDto dto,
             @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
-        //영속화
-        if(profileImage != null && !profileImage.isEmpty()){
-            String fileName = profileImage.getOriginalFilename();
-            Path savePath = Paths.get("./upload/" + fileName);
-            Files.createDirectories(savePath.getParent());
-            profileImage.transferTo(savePath);
-        }
         return ResponseEntity.status(201).body(userService.create(dto, profileImage));
     }
 
@@ -67,13 +60,6 @@ public class UserController {
             @RequestPart("userUpdateRequest") UserUpdateRequestDto userUpdateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
-        if(profileImage != null && !profileImage.isEmpty()){
-            String fileName = profileImage.getOriginalFilename();
-            Path savePath = Paths.get("./upload/" + fileName);
-            Files.createDirectories(savePath.getParent());
-            profileImage.transferTo(savePath);
-        }
-
         return userService.update(userId, userUpdateRequest, profileImage);
     }
 
