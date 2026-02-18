@@ -6,6 +6,11 @@ import com.sprint.mission.discodeit.dto.user.UserUpdateRequestDto;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequestDto;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +34,19 @@ public class UserController {
     private final UserStatusService userStatusService;
 
     //사용자 등록
+    @Operation(summary = "유저 회원 가입 API")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "유저 생성 성공",
+                    content = @Content(
+                            mediaType = "*/*",
+                            schema = @Schema(implementation = UserResponseDto.class)
+                    )
+            )
+    })
     @RequestMapping(method = RequestMethod.POST, consumes = "multipart/form-data")
-    public UserResponseDto create(
+    public ResponseEntity<UserResponseDto> create(
             @RequestPart("userCreateRequest") UserCreateRequestDto dto,
             @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
@@ -41,15 +57,15 @@ public class UserController {
             Files.createDirectories(savePath.getParent());
             profileImage.transferTo(savePath);
         }
-        return userService.create(dto, profileImage);
+        return ResponseEntity.status(201).body(userService.create(dto, profileImage));
     }
 
     //사용자 정보 수정
     @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH, consumes = "multipart/form-data")
     public UserResponseDto update(
             @PathVariable UUID userId,
-            @RequestPart("dto") UserCreateRequestDto dto,
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+            @RequestPart("userUpdateRequest") UserUpdateRequestDto userUpdateRequest,
+            @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
         if(profileImage != null && !profileImage.isEmpty()){
             String fileName = profileImage.getOriginalFilename();
@@ -58,7 +74,7 @@ public class UserController {
             profileImage.transferTo(savePath);
         }
 
-        return userService.update(new UserUpdateRequestDto(userId, dto.username(), dto.email(), dto.password()), profileImage);
+        return userService.update(userId, userUpdateRequest, profileImage);
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
@@ -72,8 +88,11 @@ public class UserController {
     }
 
     @RequestMapping(value = "/{userId}/userStatus", method = RequestMethod.PATCH)
-    public ResponseEntity<Void> updateUserStatusByUserId(@PathVariable UUID userId){
-        userStatusService.updateByUserId(new UserStatusUpdateRequestDto(true, userId, Instant.now()));
+    public ResponseEntity<Void> updateUserStatusByUserId(
+            @PathVariable UUID userId,
+            @RequestBody UserStatusUpdateRequestDto dto
+    ){
+        userStatusService.updateByUserId(userId, dto);
         return ResponseEntity.noContent().build();
     }
 }

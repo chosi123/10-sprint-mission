@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.user.UserUpdateRequestDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.user.UserResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -51,12 +52,12 @@ public class BasicUserService implements UserService {
                 userCreateRequestDto.password(),
                 null);
 
+        //최종 저장
+        userRepository.save(user);
+
         //userStatus 생성
         UserStatus userStatus = new UserStatus(user.getId());
         userStatusRepository.save(userStatus);
-
-        //최종 저장
-        userRepository.save(user);
 
         //저장된 데이터 리턴
         return userResponseMapper.toDto(user, userStatus);
@@ -83,9 +84,9 @@ public class BasicUserService implements UserService {
     }
 
     @Override
-    public UserResponseDto update(UserUpdateRequestDto userUpdateRequestDto, MultipartFile profileImageFile) throws IOException {
-        User user = userRepository.findById(userUpdateRequestDto.targetUserId())
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userUpdateRequestDto.targetUserId() + " not found"));
+    public UserResponseDto update(UUID userId, UserUpdateRequestDto userUpdateRequestDto, MultipartFile profileImageFile) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElseThrow();
 
