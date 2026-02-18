@@ -22,6 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -68,8 +71,21 @@ public class BasicMessageService implements MessageService {
         );
         messageRepository.save(message);
 
+        //영속화
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                if (file == null || file.isEmpty()) continue;
+
+                String fileName = file.getOriginalFilename();
+                Path savePath = Paths.get("./upload/" + fileName);
+                Files.createDirectories(savePath.getParent());
+                file.transferTo(savePath);
+            }
+        }
+
         return messageResponseMapper.toDto(message);
     }
+
 
     @Override
     public MessageResponseDto find(UUID messageId) {

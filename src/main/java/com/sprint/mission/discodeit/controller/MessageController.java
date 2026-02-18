@@ -57,18 +57,6 @@ public class MessageController {
             @RequestPart(value = "messageCreateRequest") MessageCreateRequestDto requestDto,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
             )throws IOException {
-
-        if (attachments != null && !attachments.isEmpty()) {
-            for (MultipartFile file : attachments) {
-                if (file == null || file.isEmpty()) continue;
-
-                String fileName = file.getOriginalFilename();
-                Path savePath = Paths.get("./upload/" + fileName);
-                Files.createDirectories(savePath.getParent());
-                file.transferTo(savePath);
-            }
-        }
-
         return ResponseEntity.status(201).body(messageService.create(requestDto, attachments));
     }
 
