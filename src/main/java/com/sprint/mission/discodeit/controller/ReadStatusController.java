@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -33,10 +35,13 @@ public class ReadStatusController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public IsMessageReadResponseDto getReadStatus(
-            @RequestBody IsMessageReadRequestDto dto
+    public ResponseEntity<List<IsMessageReadResponseDto>> getReadStatus(
+            @RequestParam UUID userId
             ){
-        return readStatusService.findByUserIdAndMessageId(dto.userId(), dto.messageId());
+
+        List<IsMessageReadResponseDto> dtoList = readStatusService.findAllByUserId(userId);
+
+        return ResponseEntity.ok(dtoList);
     }
 
     /*

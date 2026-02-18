@@ -15,7 +15,7 @@ public class Message extends DefaultEntity implements Serializable {
     //
     private UUID channelId;
     private UUID authorId;
-    private List<UUID> attachments;
+    private List<UUID> attachmentIds;
 
     public Message(String content, UUID channelId, UUID authorId, List<UUID> attachments) {
         super();
@@ -23,7 +23,7 @@ public class Message extends DefaultEntity implements Serializable {
         this.content = content;
         this.channelId = channelId;
         this.authorId = authorId;
-        this.attachments = attachments;
+        this.attachmentIds = attachments;
     }
 
     public void update(String newContent, List<UUID> newAttachments) {
@@ -32,8 +32,8 @@ public class Message extends DefaultEntity implements Serializable {
             this.content = newContent;
             anyValueUpdated = true;
         }
-        if (newAttachments != null && !newAttachments.equals(this.attachments)) {
-            this.attachments = newAttachments;
+        if (newAttachments != null && !newAttachments.equals(this.attachmentIds)) {
+            this.attachmentIds = newAttachments;
             anyValueUpdated = true;
         }
 

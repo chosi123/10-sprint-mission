@@ -109,7 +109,7 @@ public class BasicMessageService implements MessageService {
 
         if (hasNewFiles) {
             // 1️⃣ 기존 첨부 삭제
-            for (UUID oldId : message.getAttachments()) {
+            for (UUID oldId : message.getAttachmentIds()) {
                 binaryContentRepository.deleteById(oldId);
             }
 
@@ -136,7 +136,7 @@ public class BasicMessageService implements MessageService {
         // 👉 새 파일이 없으면 attachments는 건드리지 않음
         message.update(
                 requestDto.newContent(),
-                hasNewFiles ? newAttachmentIds : message.getAttachments()
+                hasNewFiles ? newAttachmentIds : message.getAttachmentIds()
         );
 
         messageRepository.save(message);
@@ -152,7 +152,7 @@ public class BasicMessageService implements MessageService {
 
         //내부 파일들 바이너리레포에서 삭제
         messageRepository.findById(messageId).orElseThrow()
-                .getAttachments().forEach(binaryContentRepository::deleteById);
+                .getAttachmentIds().forEach(binaryContentRepository::deleteById);
 
         // 메시지레포에서 삭제
         messageRepository.deleteById(messageId);
