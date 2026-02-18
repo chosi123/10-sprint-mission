@@ -156,7 +156,7 @@ public class BasicMessageService implements MessageService {
 
     private BinaryContent toBinaryContent(MultipartFile file) {
         try {
-            return binaryContentRepository.save(new BinaryContent(file.getBytes(), file.getContentType()));
+            return binaryContentRepository.save(new BinaryContent(file.getBytes(), file.getContentType(), file.getOriginalFilename(), file.getSize()));
         } catch (IOException e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,

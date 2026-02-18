@@ -45,7 +45,7 @@ public class BasicUserService implements UserService {
             if(profileImageFile.getContentType() == null || !profileImageFile.getContentType().startsWith("image/"))
                 throw new IllegalArgumentException("Invalid image file");
 
-            BinaryContent profileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType());
+            BinaryContent profileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(profileImage);
 
             user = new User(userCreateRequestDto.username(),
@@ -123,7 +123,7 @@ public class BasicUserService implements UserService {
             if(user.getProfileId() != null){
                 binaryContentRepository.deleteById(user.getProfileId());
             }
-            newProfileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType());
+            newProfileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(newProfileImage);
             user.setProfileId(newProfileImage.getId());
 

@@ -18,9 +18,10 @@ public class BasicBinaryContentService implements BinaryContentService {
     public final BinaryContentRepository binaryContentRepository;
     public final BinaryContentResponseMapper binaryContentResponseMapper;
 
+    //어차피 안 쓰여서 임시로 처리함.
     @Override
     public BinaryContent create(byte[] content) {
-        BinaryContent binaryContent = binaryContentRepository.save(new BinaryContent(content, "image/png"));
+        BinaryContent binaryContent = binaryContentRepository.save(new BinaryContent(content, "", "", 0L));
 
         return binaryContent;
     }
