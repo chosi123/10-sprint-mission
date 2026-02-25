@@ -37,7 +37,7 @@ public class BasicAuthService implements AuthService {
         }
 
         UserStatus userStatus = userStatusRepository.findByUserId(targetUser.getId())
-                .get();
+                .orElseGet(() -> userStatusRepository.save(new UserStatus(targetUser.getId())));
         userStatus.setLastOnlineTime(Instant.now());
         userStatusRepository.save(userStatus);
 
