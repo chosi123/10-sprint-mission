@@ -55,7 +55,7 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus userStatus = userStatusRepository.findById(id)
                 .orElseThrow(() -> new AssertionError("UserStatus not found"));
 
-        userStatus.setLastOnlineTime(userStatusUpdateRequestDto.newLastActiveAt());
+        userStatus.setLastActiveAt(userStatusUpdateRequestDto.newLastActiveAt());
 
         userStatusRepository.save(userStatus);
         return userStatusResponseMapper.toDto(userStatus);
@@ -65,7 +65,7 @@ public class BasicUserStatusService implements UserStatusService {
         UserStatus userStatus = userStatusRepository.findByUserId(id)
                         .orElseThrow(() -> new AssertionError("UserStatus not found"));
 
-        userStatus.setLastOnlineTime(userStatusUpdateRequestDto.newLastActiveAt());
+        userStatus.setLastActiveAt(userStatusUpdateRequestDto.newLastActiveAt());
 
         userStatusRepository.save(userStatus);
 

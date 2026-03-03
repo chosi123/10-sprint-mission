@@ -1,28 +1,39 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
+@NoArgsConstructor
+@Entity(name = "user_statuses")
 @Getter
 @Setter
 public class UserStatus extends BaseUpdatableEntity{
-    private final UUID userId;
+    @NotNull
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
 
-    private Instant lastOnlineTime;
+    @NotNull
+    @Column(nullable = false)
+    private Instant lastActiveAt;
 
-    public UserStatus(UUID userId) {
-        this.userId = userId;
-        this.lastOnlineTime = Instant.now();//생성 시점을 첫 접속으로 설정
+    public UserStatus(User user) {
+        this.user = user;
+        this.lastActiveAt = Instant.now();//생성 시점을 첫 접속으로 설정
     }
 
     public Boolean isOnline(){
-        if(lastOnlineTime == null) return false;
+        if(lastActiveAt == null) return false;
 
-        return !Instant.now().minusSeconds(360).isAfter(lastOnlineTime);
+        return !Instant.now().minusSeconds(360).isAfter(lastActiveAt);
     }
 
 }

@@ -38,7 +38,7 @@ public class BasicAuthService implements AuthService {
 
         UserStatus userStatus = userStatusRepository.findByUserId(targetUser.getId())
                 .get();
-        userStatus.setLastOnlineTime(Instant.now());
+        userStatus.setLastActiveAt(Instant.now());
         userStatusRepository.save(userStatus);
 
         return loginResponseMapper.toDto(targetUser);
