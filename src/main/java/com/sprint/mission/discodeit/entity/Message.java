@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-public class Message extends DefaultEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
-    //
+public class Message extends BaseUpdatableEntity{
     private String content;
     //
     private UUID channelId;

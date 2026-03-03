@@ -11,9 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class User extends DefaultEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class User extends BaseUpdatableEntity {
     //
     private String username;
     private String email;

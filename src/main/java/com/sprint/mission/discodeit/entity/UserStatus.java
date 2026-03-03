@@ -9,8 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UserStatus extends DefaultEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class UserStatus extends BaseUpdatableEntity{
     private final UUID userId;
 
     private Instant lastOnlineTime;

@@ -11,8 +11,7 @@ import java.util.UUID;
 import static com.sprint.mission.discodeit.entity.ChannelType.PRIVATE;
 
 @Getter
-public class Channel extends DefaultEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Channel extends BaseUpdatableEntity {
     //
     private ChannelType type;
     private String name = null;
