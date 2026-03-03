@@ -39,12 +39,13 @@ public class User extends BaseUpdatableEntity {
     @JoinColumn(name = "profile_id", unique = true)
     private BinaryContent profile;
 
-    public User(String username, String email, String password, UUID profileId) {
+    public User(String username, String email, String password, BinaryContent profile) {
         super();
         //
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profile = profile;
     }
 
     public void isUpdated(){
