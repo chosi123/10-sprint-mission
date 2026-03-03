@@ -13,7 +13,7 @@ public interface UserResponseMapper {
     @Mapping(source = "user.updatedAt", target = "updatedAt")
     @Mapping(source = "user.username", target = "username")
     @Mapping(source = "user.email", target = "email")
-    @Mapping(source = "user.profileId", target = "profileId")
+    @Mapping(source = "user.profile.id", target = "profileId")
     @Mapping(target = "online", expression = "java(status.isOnline())")
     UserResponseDto toDto(User user, UserStatus status);
 }
