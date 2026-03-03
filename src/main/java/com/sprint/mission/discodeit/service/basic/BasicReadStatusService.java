@@ -72,7 +72,7 @@ class BasicReadStatusService implements ReadStatusService {
         ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(userId, message.getChannelId())
                 .orElseThrow(() -> new ReadStatusNotFoundException());
 
-        boolean isRead = message.getCreatedAt().isBefore(readStatus.getLastUserReadTimeInChannel());
+        boolean isRead = message.getCreatedAt().isBefore(readStatus.getLastReadAt());
 
         return new IsMessageReadResponseDto(isRead, userId, messageId);
     }
@@ -96,7 +96,7 @@ class BasicReadStatusService implements ReadStatusService {
                 .filter(message -> readStatusByChannelId.containsKey(message.getChannelId()))
                 .map(message -> {
                     ReadStatus rs = readStatusByChannelId.get(message.getChannelId());
-                    boolean isRead = message.getCreatedAt().isBefore(rs.getLastUserReadTimeInChannel());
+                    boolean isRead = message.getCreatedAt().isBefore(rs.getLastReadAt());
                     return new IsMessageReadResponseDto(isRead, userId, message.getId());
                 })
                 .toList();
@@ -108,7 +108,7 @@ class BasicReadStatusService implements ReadStatusService {
         ReadStatus targetReadStatus = readStatusRepository.findById(id)
                         .orElseThrow(()-> new ReadStatusNotFoundException(id));
 
-        targetReadStatus.setLastUserReadTimeInChannel(readStatusUpdateRequestDto.newLastReadAt());
+        targetReadStatus.setLastReadAt(readStatusUpdateRequestDto.newLastReadAt());
 
         readStatusRepository.save(targetReadStatus);
 
