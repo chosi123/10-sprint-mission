@@ -1,16 +1,14 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -35,6 +33,9 @@ public class User extends BaseUpdatableEntity {
     @OneToOne
     @JoinColumn(name = "profile_id", unique = true)
     private BinaryContent profile;
+
+    @OneToOne(mappedBy = "user")
+    private UserStatus userStatus;
 
     public User(String username, String email, String password, BinaryContent profile) {
         super();

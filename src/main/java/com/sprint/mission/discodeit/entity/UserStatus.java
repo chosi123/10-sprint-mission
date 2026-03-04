@@ -1,9 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,9 +13,9 @@ import java.time.Instant;
 @Entity(name = "user_statuses")
 @Getter
 @Setter
-public class UserStatus extends BaseUpdatableEntity{
+public class UserStatus extends BaseUpdatableEntity {
     @NotNull
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
