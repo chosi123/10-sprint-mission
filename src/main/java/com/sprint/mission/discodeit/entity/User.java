@@ -13,7 +13,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 public class User extends BaseUpdatableEntity {
     @NotNull
     @Size(min = 1, max = 50)

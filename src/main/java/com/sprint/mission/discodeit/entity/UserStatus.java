@@ -10,7 +10,8 @@ import lombok.Setter;
 import java.time.Instant;
 
 @NoArgsConstructor
-@Entity(name = "user_statuses")
+@Entity
+@Table(name = "user_statuses")
 @Getter
 @Setter
 public class UserStatus extends BaseUpdatableEntity {

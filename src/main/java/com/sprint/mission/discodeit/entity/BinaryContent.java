@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -12,7 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-@Entity(name = "binary_contents")
+@Entity
+@Table(name = "binary_contents")
 public class BinaryContent extends BaseEntity {
     @NotNull
     @Size(max = 100)

@@ -1,10 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -14,7 +11,8 @@ import java.time.Instant;
 
 import static com.sprint.mission.discodeit.entity.ChannelType.PRIVATE;
 
-@Entity(name = "channels")
+@Entity
+@Table(name = "channels")
 @NoArgsConstructor
 @Getter
 public class Channel extends BaseUpdatableEntity {

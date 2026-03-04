@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name = "message_attachments")
+@Entity
+@Table(name = "message_attachments")
 @NoArgsConstructor
 @Getter
 @Setter

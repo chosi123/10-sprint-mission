@@ -14,7 +14,8 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "messages")
+@Entity
+@Table(name = "messages")
 @Getter
 public class Message extends BaseUpdatableEntity {
     @Column
