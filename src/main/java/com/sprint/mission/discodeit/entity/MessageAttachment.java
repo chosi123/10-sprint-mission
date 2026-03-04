@@ -17,11 +17,13 @@ public class MessageAttachment {
     @EmbeddedId
     private MessageAttachmentId id;
 
+    @MapsId("MessageId")
     @ManyToOne
     @NotNull
     @JoinColumn(name = "message_id")
     private Message message;
 
+    @MapsId("BinaryContentId")
     @OneToOne
     @NotNull
     @JoinColumn(name = "attachment_id", unique = true)
