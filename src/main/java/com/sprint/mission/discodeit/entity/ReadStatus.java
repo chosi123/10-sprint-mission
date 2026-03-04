@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-public class ReadStatus extends BaseUpdatableEntity{
+public class ReadStatus extends BaseUpdatableEntity {
     @NotNull
     @ManyToOne
     @JoinColumn(name = "user_id", unique = true)
