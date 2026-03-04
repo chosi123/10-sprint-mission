@@ -2,6 +2,7 @@ package com.sprint.mission.discodeit.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,4 +27,9 @@ public class MessageAttachment {
     @JoinColumn(name = "attachment_id", unique = true)
     private BinaryContent binaryContent;
 
+    public MessageAttachment(Message message, BinaryContent binaryContent) {
+        this.id = new MessageAttachmentId(message.getId(), binaryContent.getId());
+        this.message = message;
+        this.binaryContent = binaryContent;
+    }
 }

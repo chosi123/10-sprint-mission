@@ -18,11 +18,11 @@ import java.util.UUID;
 @Table(name = "messages")
 @Getter
 public class Message extends BaseUpdatableEntity {
-    @Column
+    @Column(columnDefinition = "text")
     private String content;
     //
     @NotNull
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", nullable = false)
     private Channel channel;
 

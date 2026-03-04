@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
-    List<Message> findByChannelId(UUID channelId);
+    List<Message> findByChannelIdOrderByCreatedAtAsc(UUID channelId);
     @Query("SELECT max(m.createdAt) FROM Message m WHERE m.channel.id= :channelId")
     Instant findLastMessageTimeWithChannelId(UUID channelId);
+
+
 }

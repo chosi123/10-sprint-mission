@@ -3,8 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.message.MessageCreateRequestDto;
 import com.sprint.mission.discodeit.dto.message.MessageResponseDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequestDto;
-import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.entity.Message;
+import com.sprint.mission.discodeit.entity.*;
 import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.MessageNotFoundException;
 import com.sprint.mission.discodeit.exception.UserNotFoundException;
@@ -14,6 +13,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
@@ -22,9 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -40,46 +37,35 @@ public class BasicMessageService implements MessageService {
 
     @SneakyThrows
     @Override
+    @Transactional
     public MessageResponseDto create(MessageCreateRequestDto messageCreateRequestDto, List<MultipartFile> files) {
-        if (!channelRepository.existsById(messageCreateRequestDto.channelId())) {
-            throw new ChannelNotFoundException(messageCreateRequestDto.channelId());
-        }
-        if (!userRepository.existsById(messageCreateRequestDto.authorId())) {
-            throw new UserNotFoundException("Author not found with id " + messageCreateRequestDto.authorId());
-        }
-
-        List<MultipartFile> safeFiles = Optional.ofNullable(files).orElse(List.of());
-
-        List<UUID> attachmentListToId = safeFiles.stream()
-                .filter(file -> file != null && !file.isEmpty())
-                .map(file -> toBinaryContent(file).getId())
-                .toList();
+        Channel channel = channelRepository.findById(messageCreateRequestDto.channelId())
+                .orElseThrow(() -> new ChannelNotFoundException(messageCreateRequestDto.channelId()));
+        User user = userRepository.findById(messageCreateRequestDto.authorId())
+                .orElseThrow(() -> new UserNotFoundException(messageCreateRequestDto.authorId()));
 
         Message message = new Message(
                 messageCreateRequestDto.content(),
-                messageCreateRequestDto.channelId(),
-                messageCreateRequestDto.authorId(),
-                attachmentListToId
+                channel,
+                user,
+                new ArrayList<>()
         );
+
+        List<MultipartFile> safeFiles = Optional.ofNullable(files).orElse(List.of());
+
+        safeFiles.stream()
+                .filter(file -> file != null && !file.isEmpty())
+                .forEach(file ->
+                        message.getAttachments().add(new MessageAttachment(message, toBinaryContent(file))));
+
         messageRepository.save(message);
-
-        //영속화
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile file : files) {
-                if (file == null || file.isEmpty()) continue;
-
-                String fileName = file.getOriginalFilename();
-                Path savePath = Paths.get("./upload/" + fileName);
-                Files.createDirectories(savePath.getParent());
-                file.transferTo(savePath);
-            }
-        }
 
         return messageResponseMapper.toDto(message);
     }
 
 
     @Override
+    @Transactional
     public MessageResponseDto find(UUID messageId) {
         Message targetMessage = messageRepository.findById(messageId)
                 .orElseThrow(() -> new MessageNotFoundException(messageId));
@@ -88,11 +74,9 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
+    @Transactional
     public List<MessageResponseDto> findAllByChannelId(UUID channelId) {
-        List<Message> messages = messageRepository.findAll().stream()
-                .filter(message -> message.getChannelId().equals(channelId))
-                .sorted((m1, m2) -> m2.getCreatedAt().compareTo(m1.getCreatedAt()))
-                .toList();
+        List<Message> messages = messageRepository.findByChannelIdOrderByCreatedAtAsc(channelId);
 
         return messages.stream()
                 .map(messageResponseMapper::toDto)
@@ -100,6 +84,7 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
+    @Transactional
     public MessageResponseDto update(
             UUID id,
             MessageUpdateRequestDto requestDto, List<MultipartFile> files
@@ -113,18 +98,18 @@ public class BasicMessageService implements MessageService {
                 files != null &&
                         files.stream().anyMatch(f -> f != null && !f.isEmpty());
 
-        List<UUID> newAttachmentIds = null;
+        List<MessageAttachment> newAttachments = null;
 
         if (hasNewFiles) {
             // 1️⃣ 기존 첨부 삭제
-            for (UUID oldId : message.getAttachmentIds()) {
-                binaryContentRepository.deleteById(oldId);
+            for (MessageAttachment old : message.getAttachments()) {
+                binaryContentRepository.deleteById(old.getBinaryContent().getId());
             }
 
             // 2️⃣ 새 첨부 저장
-            newAttachmentIds = files.stream()
+            newAttachments = files.stream()
                     .filter(f -> f != null && !f.isEmpty())
-                    .map(f -> toBinaryContent(f).getId())
+                    .map(f -> new MessageAttachment(message, toBinaryContent(f)))
                     .toList();
         }
 
@@ -132,7 +117,7 @@ public class BasicMessageService implements MessageService {
         // 👉 새 파일이 없으면 attachments는 건드리지 않음
         message.update(
                 requestDto.newContent(),
-                hasNewFiles ? newAttachmentIds : message.getAttachmentIds()
+                hasNewFiles ? newAttachments : message.getAttachments()
         );
 
         messageRepository.save(message);
@@ -141,14 +126,11 @@ public class BasicMessageService implements MessageService {
     }
 
     @Override
+    @Transactional
     public void delete(UUID messageId) {
         if (!messageRepository.existsById(messageId)) {
             throw new MessageNotFoundException(messageId);
         }
-
-        //내부 파일들 바이너리레포에서 삭제
-        messageRepository.findById(messageId).orElseThrow()
-                .getAttachmentIds().forEach(binaryContentRepository::deleteById);
 
         // 메시지레포에서 삭제
         messageRepository.deleteById(messageId);
