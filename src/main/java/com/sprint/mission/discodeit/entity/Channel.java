@@ -1,6 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -10,13 +17,23 @@ import java.util.UUID;
 
 import static com.sprint.mission.discodeit.entity.ChannelType.PRIVATE;
 
+@Entity(name = "channels")
+@NoArgsConstructor
 @Getter
 public class Channel extends BaseUpdatableEntity {
     //
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private ChannelType type;
+
+    @Size(max = 100)
+    @Column(length = 100)
     private String name = null;
+
+    @Size(max = 500)
+    @Column(length = 500)
     private String description = null;
-    private List<UUID> participantIds = null;
 
     public Channel(ChannelType type, String name, String description) {
         super();
@@ -24,7 +41,7 @@ public class Channel extends BaseUpdatableEntity {
         this.type = type;
 
         if(type == PRIVATE){
-            participantIds = new ArrayList<>();
+            //participantIds = new ArrayList<>();
         }
         else{
             this.name = name;
@@ -50,12 +67,9 @@ public class Channel extends BaseUpdatableEntity {
             this.updatedAt = Instant.now();
         }
     }
-
+/*
     public void join(UUID userId){
         participantIds.add(userId);
     }
-
-    public void leave(UUID userId){
-        if(!participantIds.contains(userId)) participantIds.remove(userId);
-    }
+    */
 }
