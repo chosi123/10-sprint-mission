@@ -36,7 +36,7 @@ public class BasicChannelService implements ChannelService {
 
     private Instant findLastMessageTime(UUID channelId){
         return messageRepository.findAll().stream()
-                .filter(message -> message.getChannelId().equals(channelId))
+                .filter(message -> message.getChannel().getId().equals(channelId))
                 .map(message -> message.getCreatedAt())
                 .max(Instant::compareTo)
                 .orElse(null);
@@ -75,16 +75,16 @@ public class BasicChannelService implements ChannelService {
     @Override
     public List<ChannelResponseDto> findAllByUserId(UUID userId) {
         List<ChannelResponseDto> dtoList = new ArrayList<>();
-
-        channelRepository.findAll()
-                .forEach(channel->{
-                    if (channel.getType() == PUBLIC) {
-                        dtoList.add(find(channel.getId()));
-                    }
-                    else if(channel.getParticipantIds().contains(userId)){
-                        dtoList.add(find(channel.getId()));
-                    }
-        });
+//
+//        channelRepository.findAll()
+//                .forEach(channel->{
+//                    if (channel.getType() == PUBLIC) {
+//                        dtoList.add(find(channel.getId()));
+//                    }
+//                    else if(channel.getParcipantIds().contains(userId)){
+//                        dtoList.add(find(channel.getId()));
+//                    }
+//        });
 
         return dtoList;
     }
@@ -111,13 +111,13 @@ public class BasicChannelService implements ChannelService {
 
         //채널에 속한 메시지들 삭제
         messageRepository.findAll().stream()
-                        .filter(message -> message.getChannelId().equals(channelId))
+                        .filter(message -> message.getChannel().getId().equals(channelId))
                         .map(BaseEntity::getId)
                         .forEach(messageRepository::deleteById);
 
         //채널을 갖고 있는 리드스테이터스 객체 삭제
         readStatusRepository.findAll().stream()
-                        .filter(readstat -> readstat.getChannelID().equals(channelId))
+                        .filter(readstat -> readstat.getChannel().getId().equals(channelId))
                         .map(BaseEntity::getId)
                         .forEach(readStatusRepository::deleteById);
 

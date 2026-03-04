@@ -1,19 +1,16 @@
 package com.sprint.mission.discodeit.mapper.user;
 
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentResponseDto;
 import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.mapper.binarycontent.BinaryContentResponseMapper;
+import com.sprint.mission.discodeit.mapper.userstatus.UserStatusResponseMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {BinaryContentResponseMapper.class})
 public interface UserResponseMapper {
-    @Mapping(source = "user.id", target = "id")
-    @Mapping(source = "user.createdAt", target = "createdAt")
-    @Mapping(source = "user.updatedAt", target = "updatedAt")
-    @Mapping(source = "user.username", target = "username")
-    @Mapping(source = "user.email", target = "email")
-    @Mapping(source = "user.profile.id", target = "profileId")
-    @Mapping(target = "online", expression = "java(status.isOnline())")
-    UserResponseDto toDto(User user, UserStatus status);
+    @Mapping(target = "online", expression = "java(user.getUserStatus().isOnline())")
+    UserResponseDto toDto(User user);
 }

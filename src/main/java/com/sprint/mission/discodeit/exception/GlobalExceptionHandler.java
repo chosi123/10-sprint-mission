@@ -11,7 +11,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({BinaryContentNotFoundException.class, ChannelNotFoundException.class, UserNotFoundException.class, MessageNotFoundException.class})
-    public ResponseEntity<?> NotFoundHandler(UserNotFoundException e) {
+    public ResponseEntity<?> NotFoundHandler(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of(
                         "status", HttpStatus.NOT_FOUND.value(),
