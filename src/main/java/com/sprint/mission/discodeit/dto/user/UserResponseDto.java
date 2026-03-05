@@ -7,11 +7,9 @@ import java.util.UUID;
 
 public record UserResponseDto(
         UUID id,
-        Instant createdAt,
-        Instant updatedAt,
         String username,
         String email,
-        BinaryContentResponseDto profileImage,
+        BinaryContentResponseDto profile,
         boolean online
 ) {
 }
