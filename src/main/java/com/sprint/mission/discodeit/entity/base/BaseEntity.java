@@ -3,6 +3,7 @@ package com.sprint.mission.discodeit.entity.base;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @Getter
 public abstract class BaseEntity {
     @Id
-    protected final UUID id;
+    protected UUID id;
 
     @CreatedDate
     @NotNull
