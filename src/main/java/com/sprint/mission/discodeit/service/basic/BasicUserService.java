@@ -49,8 +49,8 @@ public class BasicUserService implements UserService {
                 throw new IllegalArgumentException("Invalid image file");
 
             BinaryContent profileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
-            binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
             binaryContentRepository.save(profileImage);
+            binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
 
             user = new User(userCreateRequestDto.username(),
                     userCreateRequestDto.email(),
