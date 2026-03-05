@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record UserStatusResponseDto(
         UUID id,
-        Instant lastUserReadTimeInChannel
+        UUID userId,
+        Instant lastActiveAt
 ) {
 }
