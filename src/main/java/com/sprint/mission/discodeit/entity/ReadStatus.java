@@ -12,18 +12,24 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @Entity
-@Table(name = "read_statuses")
+@Table(name = "read_statuses",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                name = "uk_read_status_user_channel",
+                columnNames = {"user_id", "channel_id"}
+            )
+})
 @Getter
 @Setter
 public class ReadStatus extends BaseUpdatableEntity {
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "user_id", unique = true)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "channel_id", unique = true)
+    @JoinColumn(name = "channel_id")
     private Channel channel;
 
     @NotNull
