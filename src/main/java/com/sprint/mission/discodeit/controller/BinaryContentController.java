@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.controller;
 
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @Tag(name = "BinaryContent", description = "파일 관련 API")
 public class BinaryContentController {
     private final BinaryContentService binaryContentService;
+    private final BinaryContentStorage binaryContentStorage;
 
     //이미지 단순 조회(프로필, 메시지 내 파일 단일 모두 가능)
     @Operation(
@@ -49,8 +52,8 @@ public class BinaryContentController {
                     )
             )
     })
-    @RequestMapping(value = "{binaryContentId}", method = RequestMethod.GET)
-    public ResponseEntity<BinaryContent> find(
+    @RequestMapping(value = "/{binaryContentId}", method = RequestMethod.GET)
+    public ResponseEntity<BinaryContentResponseDto> find(
             @PathVariable UUID binaryContentId
     ){
         return ResponseEntity.ok(binaryContentService.find(binaryContentId));
@@ -72,11 +75,20 @@ public class BinaryContentController {
             )
     })
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<BinaryContent>> findAllByIdIn(
+    public ResponseEntity<List<BinaryContentResponseDto>> findAllByIdIn(
             @RequestParam List<UUID> binaryContentIds
     ){
         return ResponseEntity.ok(binaryContentIds.stream()
                 .map(binaryContentService::find)
                 .toList());
     }
+
+    //다운로드
+    @RequestMapping(method = RequestMethod.GET, value = "/{binaryContentId}/download")
+    public ResponseEntity<?> downloadContent(
+            @PathVariable UUID binaryContentId
+    ){
+        return binaryContentStorage.download(binaryContentService.find(binaryContentId));
+    }
+
 }
