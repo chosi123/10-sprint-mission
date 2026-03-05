@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.controller;
 
-import com.sprint.mission.discodeit.dto.user.LoginResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import io.swagger.v3.oas.annotations.Operation;
