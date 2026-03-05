@@ -128,6 +128,8 @@ public class BasicUserService implements UserService {
 
         userRepository.save(user);
 
+        System.out.println(user.getEmail());
+
         return userResponseMapper.toDto(user);
     }
 
@@ -138,9 +140,6 @@ public class BasicUserService implements UserService {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException(userId);
         }
-
-        User deletedUser = userRepository.findById(userId).get();
-        binaryContentRepository.deleteById(deletedUser.getProfile().getId());//프로필 이미지 삭제
 
         userRepository.deleteById(userId);//유저레포지토리에서 삭제
     }

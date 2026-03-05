@@ -35,7 +35,7 @@ public class User extends BaseUpdatableEntity {
     @JoinColumn(name = "profile_id", unique = true)
     private BinaryContent profile;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserStatus userStatus;
 
     public User(String username, String email, String password, BinaryContent profile) {

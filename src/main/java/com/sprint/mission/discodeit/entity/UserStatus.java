@@ -16,7 +16,7 @@ import java.time.Instant;
 @Setter
 public class UserStatus extends BaseUpdatableEntity {
     @NotNull
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
