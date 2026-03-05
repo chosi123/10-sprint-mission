@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.exception.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.binarycontent.BinaryContentResponseMapper;
@@ -20,26 +21,29 @@ public class BasicBinaryContentService implements BinaryContentService {
 
     //어차피 안 쓰여서 임시로 처리함.
     @Override
-    public BinaryContent create(byte[] content) {
+    public BinaryContentResponseDto create(byte[] content) {
         BinaryContent binaryContent = binaryContentRepository.save(new BinaryContent(content, "", "", 0L));
 
-        return binaryContent;
+        return binaryContentResponseMapper.toDto(binaryContent);
     }
 
     @Override
-    public BinaryContent find(UUID binaryContentId) {
-        return binaryContentRepository.findById(binaryContentId)
+    public BinaryContentResponseDto find(UUID binaryContentId) {
+        BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
                 .orElseThrow(() -> new BinaryContentNotFoundException("BinaryContent with id " + binaryContentId + " not found"));
+        return binaryContentResponseMapper.toDto(binaryContent);
     }
 
     @Override
-    public List<BinaryContent> findAllByIdIn(List<UUID> idList) {
+    public List<BinaryContentResponseDto> findAllByIdIn(List<UUID> idList) {
         List<BinaryContent> binaryContents = new ArrayList<>();
 
         idList.forEach(id -> binaryContents.add(binaryContentRepository.findById(id)
-                .orElseThrow(() -> new AssertionError("BinaryContent not found"))));
+                .orElseThrow(() -> new BinaryContentNotFoundException("BinaryContent not found"))));
 
-        return binaryContents;
+        return binaryContents.stream()
+                .map(binaryContentResponseMapper::toDto)
+                .toList();
 
     }
 
