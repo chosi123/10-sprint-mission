@@ -125,4 +125,3 @@ create table user_statuses
 alter table user_statuses
     owner to discodeit_user;
 
-
