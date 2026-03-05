@@ -21,9 +21,9 @@ public class BinaryContent extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String contentType;
 
-    @NotNull
-    @Column(nullable = false)
-    private byte[] bytes;
+//    @NotNull
+//    @Column(nullable = false)
+//    private byte[] bytes;
 
     @NotNull
     @Column(nullable = false)
@@ -33,9 +33,8 @@ public class BinaryContent extends BaseEntity {
     @Column(nullable = false)
     private String fileName;
 
-    public BinaryContent(byte[] bytes, String contentType, String fileName, Long size){
+    public BinaryContent(String contentType, String fileName, Long size){
         super();
-        this.bytes = bytes;
         this.contentType = contentType;
         this.fileName = fileName;
         this.size = size;

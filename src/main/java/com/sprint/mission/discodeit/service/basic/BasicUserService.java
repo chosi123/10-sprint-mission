@@ -12,6 +12,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
     private final UserStatusRepository userStatusRepository;
     private final UserResponseMapper userResponseMapper;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Override
     @Transactional
@@ -46,7 +48,8 @@ public class BasicUserService implements UserService {
             if(profileImageFile.getContentType() == null || !profileImageFile.getContentType().startsWith("image/"))
                 throw new IllegalArgumentException("Invalid image file");
 
-            BinaryContent profileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
+            BinaryContent profileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
+            binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
             binaryContentRepository.save(profileImage);
 
             user = new User(userCreateRequestDto.username(),
@@ -117,7 +120,7 @@ public class BasicUserService implements UserService {
             if(user.getProfile() != null){
                 binaryContentRepository.deleteById(user.getProfile().getId());
             }
-            newProfileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
+            newProfileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(newProfileImage);
             user.setProfile(newProfileImage);
 
@@ -127,8 +130,6 @@ public class BasicUserService implements UserService {
         }
 
         userRepository.save(user);
-
-        System.out.println(user.getEmail());
 
         return userResponseMapper.toDto(user);
     }

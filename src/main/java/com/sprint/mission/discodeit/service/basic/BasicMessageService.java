@@ -13,6 +13,7 @@ import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.MessageService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -32,6 +33,7 @@ public class BasicMessageService implements MessageService {
     private final ChannelRepository channelRepository;
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
+    private final BinaryContentStorage binaryContentStorage;
     //
     private final MessageResponseMapper messageResponseMapper;
 
@@ -138,7 +140,9 @@ public class BasicMessageService implements MessageService {
 
     private BinaryContent toBinaryContent(MultipartFile file) {
         try {
-            return binaryContentRepository.save(new BinaryContent(file.getBytes(), file.getContentType(), file.getOriginalFilename(), file.getSize()));
+            BinaryContent binaryContent = new BinaryContent(file.getContentType(), file.getOriginalFilename(), file.getSize());
+            binaryContentStorage.put(binaryContent.getId(), file.getBytes());
+            return binaryContentRepository.save(binaryContent);
         } catch (IOException e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
