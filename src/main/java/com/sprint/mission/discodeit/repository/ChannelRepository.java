@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface ChannelRepository extends JpaRepository<Channel, UUID> {
     @Query("SELECT c FROM Channel c WHERE c.type = com.sprint.mission.discodeit.entity.ChannelType.PUBLIC " +
-            "OR c IN (SELECT r.channel FROM ReadStatus r WHERE r.user.id = :userId AND c.type = com.sprint.mission.discodeit.entity.ChannelType.PRIVATE)")
+            "OR (c.type = com.sprint.mission.discodeit.entity.ChannelType.PRIVATE " +
+            "AND EXISTS (SELECT 1 FROM ReadStatus r WHERE r.channel = c AND r.user.id = :userId)) ")
     List<Channel> findAllAccessibleChannelsByUserId(UUID userId);
 }
