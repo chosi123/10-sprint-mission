@@ -4,7 +4,6 @@ import com.sprint.mission.discodeit.dto.channel.ChannelResponseDto;
 import com.sprint.mission.discodeit.dto.channel.ChannelUpdateRequestDto;
 import com.sprint.mission.discodeit.dto.channel.PrivateChannelCreateRequestDto;
 import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequestDto;
-import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
@@ -20,8 +19,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,16 +37,16 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
-    public Channel createPublicChannel(PublicChannelCreateRequestDto requestDto) {
+    public ChannelResponseDto createPublicChannel(PublicChannelCreateRequestDto requestDto) {
         Channel channel = new Channel(PUBLIC, requestDto.name(), requestDto.description());
         channelRepository.save(channel);
 
-        return channel;
+        return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()), channel);
     }
 
     @Override
     @Transactional
-    public Channel createPrivateChannel(PrivateChannelCreateRequestDto requestDto) {
+    public ChannelResponseDto createPrivateChannel(PrivateChannelCreateRequestDto requestDto) {
         Channel channel = new Channel(PRIVATE, null, null);
         requestDto.participantIds()
                 .forEach(user-> readStatusRepository.save(new ReadStatus(userRepository.findById(user)
@@ -57,7 +54,7 @@ public class BasicChannelService implements ChannelService {
 
         channelRepository.save(channel);
 
-        return channel;
+        return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()), channel);
     }
 
     @Transactional
@@ -80,7 +77,7 @@ public class BasicChannelService implements ChannelService {
 
     @Transactional
     @Override
-    public Channel update(UUID channelId, ChannelUpdateRequestDto updateRequestDto) {
+    public ChannelResponseDto update(UUID channelId, ChannelUpdateRequestDto updateRequestDto) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new ChannelNotFoundException(channelId));
 
@@ -90,7 +87,7 @@ public class BasicChannelService implements ChannelService {
 
         channelRepository.save(channel);
 
-        return channel;
+        return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()), channel);
     }
 
     @Transactional

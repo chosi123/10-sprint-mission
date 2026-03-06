@@ -41,7 +41,7 @@ public class ChannelController {
             )
     })
     @RequestMapping(value = "/public", method = RequestMethod.POST)
-    public ResponseEntity<Channel> createPublicChannel(
+    public ResponseEntity<ChannelResponseDto> createPublicChannel(
             @RequestBody PublicChannelCreateRequestDto requestDto
     ){
         return ResponseEntity.status(201).body(channelService.createPublicChannel(requestDto));
@@ -59,7 +59,7 @@ public class ChannelController {
             )
     })
     @RequestMapping(value = "/private", method = RequestMethod.POST)
-    public ResponseEntity<Channel> createPrivateChannel(
+    public ResponseEntity<ChannelResponseDto> createPrivateChannel(
             @RequestBody PrivateChannelCreateRequestDto requestDto
     ){
         return ResponseEntity.status(201).body(channelService.createPrivateChannel(requestDto));
@@ -97,7 +97,7 @@ public class ChannelController {
             )
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<Channel> updateChannel(@RequestBody ChannelUpdateRequestDto requestDto, @PathVariable UUID id){
+    public ResponseEntity<ChannelResponseDto> updateChannel(@RequestBody ChannelUpdateRequestDto requestDto, @PathVariable UUID id){
         return ResponseEntity.status(200).body(channelService.update(id, requestDto));
     }
 
