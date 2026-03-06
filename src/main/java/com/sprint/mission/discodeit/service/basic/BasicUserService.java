@@ -122,6 +122,7 @@ public class BasicUserService implements UserService {
             }
             newProfileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(newProfileImage);
+            binaryContentStorage.put(newProfileImage.getId(), profileImageFile.getBytes());
             user.setProfile(newProfileImage);
 
         }
