@@ -19,14 +19,17 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -82,8 +85,15 @@ public class BasicMessageService implements MessageService {
 
     @Override
     @Transactional
-    public PageResponse<MessageResponseDto> findAllByChannelId(UUID channelId, Pageable pageable) {
-        Slice<Message> messages = messageRepository.findByChannelId(channelId, pageable);
+    public PageResponse<MessageResponseDto> findAllByChannelId(UUID channelId, Instant cursor, Pageable pageable) {
+        Slice<Message> messages;
+
+        if(cursor == null){
+            messages = messageRepository.findByChannelId(channelId, pageable);
+        }
+        else{
+            messages = messageRepository.findByChannelIdAndCreatedAtLessThan(channelId, cursor, pageable);
+        }
 
         return pageResponseMapper.fromSlice(messages.map(messageResponseMapper::toDto));
     }
