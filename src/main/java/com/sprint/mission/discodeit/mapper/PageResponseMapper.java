@@ -24,7 +24,7 @@ public interface PageResponseMapper {
                 nextCursor,
                 slice.getSize(),
                 slice.hasNext(),
-                (long) slice.getNumberOfElements()
+                null
         );
     }
     default <T extends BaseEntity> PageResponse<T> fromPage(Page<T> page){
