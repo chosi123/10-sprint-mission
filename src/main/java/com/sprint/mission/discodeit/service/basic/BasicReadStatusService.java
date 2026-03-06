@@ -1,6 +1,5 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.readstatus.IsMessageReadResponseDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusCreateRequestDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusResponseDto;
 import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequestDto;
@@ -26,7 +25,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,7 +68,7 @@ class BasicReadStatusService implements ReadStatusService {
         return readStatusResponseMapper.toDto(readStatus);
     }
 
-    public IsMessageReadResponseDto findByUserIdAndMessageId(UUID userId, UUID messageId){
+    public ReadStatusResponseDto findByUserIdAndMessageId(UUID userId, UUID messageId){
 
         Message message = messageRepository.findById(messageId)
                 .orElseThrow();
@@ -78,38 +76,14 @@ class BasicReadStatusService implements ReadStatusService {
         ReadStatus readStatus = readStatusRepository.findByUserIdAndChannelId(userId, message.getChannel().getId())
                 .orElseThrow(() -> new ReadStatusNotFoundException());
 
-        boolean isRead = message.getCreatedAt().isBefore(readStatus.getLastReadAt());
-
-        return new IsMessageReadResponseDto(isRead, userId, messageId);
+        return readStatusResponseMapper.toDto(readStatus);
     }
 
     @Override
     @Transactional
-    public List<IsMessageReadResponseDto> findAllByUserId(UUID userId) {
-
-        List<ReadStatus> readStatuses = readStatusRepository.findAllByUserId(userId);
-
-        Map<UUID, Instant> readStatusMap = readStatuses.stream()
-                .collect(Collectors.toMap(
-                        rs -> rs.getChannel().getId(),
-                        ReadStatus::getLastReadAt
-                ));
-
-        List<Message> allMessages = messageRepository.findAll();
-
-        return allMessages.stream()
-                .map(message -> {
-                    Instant lastReadAt = readStatusMap.get(message.getChannel().getId());
-
-                    boolean isRead = lastReadAt != null &&
-                            !message.getCreatedAt().isAfter(lastReadAt);
-
-                    return new IsMessageReadResponseDto(
-                            isRead,
-                            userId,
-                            message.getId()
-                    );
-                })
+    public List<ReadStatusResponseDto> findAllByUserId(UUID userId) {
+        return readStatusRepository.findAllByUserId(userId).stream()
+                .map(readStatusResponseMapper::toDto)
                 .toList();
     }
 
