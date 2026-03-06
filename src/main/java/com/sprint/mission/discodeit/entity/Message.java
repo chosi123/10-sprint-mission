@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class Message extends BaseUpdatableEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @BatchSize(size = 50)
     private List<MessageAttachment> attachments = new ArrayList<>();
 
     public void update(String newContent, List<MessageAttachment> newAttachments) {
