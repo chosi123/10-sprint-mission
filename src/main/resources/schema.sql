@@ -5,8 +5,7 @@ create table binary_contents
     id           uuid                        not null
         primary key,
     content_type varchar(100)                not null,
-    file_name    varchar(255)                not null,
-    bytes        bytea                       not null
+    file_name    varchar(255)                not null
 );
 
 alter table binary_contents
