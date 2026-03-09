@@ -31,7 +31,9 @@ public class BasicUserStatusService implements UserStatusService {
         User user = userRepository.findById(userStatusCreateRequestDto.userId())
                 .orElseThrow(() -> new UserNotFoundException(userStatusCreateRequestDto.userId()));
 
-        UserStatus userstatus = userStatusRepository.save(new UserStatus(user));
+        UserStatus userstatus = new UserStatus();
+        userstatus.setUser(user);
+        userStatusRepository.save(userstatus);
         return userStatusResponseMapper.toDto(userstatus);
     }
 

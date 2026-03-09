@@ -61,11 +61,8 @@ public class BasicUserService implements UserService {
                 userCreateRequestDto.email(),
                 userCreateRequestDto.password(),
                 null);
-
-        //userStatus 생성
-        UserStatus userStatus = new UserStatus(user);
+        UserStatus userStatus = new UserStatus();
         user.setUserStatus(userStatus);
-        userStatusRepository.save(userStatus);
 
         //최종 저장
         userRepository.save(user);

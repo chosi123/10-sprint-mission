@@ -9,7 +9,6 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-@NoArgsConstructor
 @Entity
 @Table(name = "user_statuses")
 @Getter
@@ -24,8 +23,7 @@ public class UserStatus extends BaseUpdatableEntity {
     @Column(nullable = false)
     private Instant lastActiveAt;
 
-    public UserStatus(User user) {
-        this.user = user;
+    public UserStatus() {
         this.lastActiveAt = Instant.now();//생성 시점을 첫 접속으로 설정
     }
 
