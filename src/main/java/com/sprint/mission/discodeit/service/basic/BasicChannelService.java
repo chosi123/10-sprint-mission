@@ -136,6 +136,7 @@ public class BasicChannelService implements ChannelService {
 
     private List<UserResponseDto> getParticipants(Channel channel, List<ReadStatus> readStatuses){
         return readStatuses.stream()
+                .filter(r->r.getChannel().getId().equals(channel.getId()))
                 .map(r->userResponseMapper.toDto(r.getUser()))
                 .toList();
     }
