@@ -14,21 +14,9 @@ import java.time.Instant;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {UserResponseMapper.class})
-public abstract class ChannelResponseMapper {
-    @Autowired
-    private ReadStatusRepository readStatusRepository;
-    @Autowired
-    private MessageRepository messageRepository;
-    @Autowired
-    private UserResponseMapper userResponseMapper;
-
+public interface ChannelResponseMapper {
     @Mapping(source = "lastMessageTime", target = "lastMessageAt")
     @Mapping(source = "participants", target = "participants")
-    public abstract ChannelResponseDto toDto(Instant lastMessageTime, Channel channel, List<UserResponseDto> participants);
+    ChannelResponseDto toDto(Instant lastMessageTime, Channel channel, List<UserResponseDto> participants);
 
-    protected List<UserResponseDto> getParticipants(Channel channel){
-        return readStatusRepository.findAllByChannelId(channel.getId()).stream()
-                .map(r->userResponseMapper.toDto(r.getUser()))
-                .toList();
-    }
 }
