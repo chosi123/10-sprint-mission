@@ -57,11 +57,11 @@ public class BasicChannelService implements ChannelService {
     @Transactional
     public ChannelResponseDto createPrivateChannel(PrivateChannelCreateRequestDto requestDto) {
         Channel channel = new Channel(PRIVATE, null, null);
+        channelRepository.save(channel);
+
         requestDto.participantIds()
                 .forEach(user-> readStatusRepository.save(new ReadStatus(userRepository.findById(user)
                         .orElseThrow(()->new UserNotFoundException(user)), channel)));
-
-        channelRepository.save(channel);
 
         return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()),
                 channel,
