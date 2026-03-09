@@ -61,7 +61,7 @@ public class BasicChannelService implements ChannelService {
 
         requestDto.participantIds()
                 .forEach(user-> readStatusRepository.save(new ReadStatus(userRepository.findById(user)
-                        .orElseThrow(()->new UserNotFoundException(user)), channel)));
+                        .orElseThrow(()->new UserNotFoundException(user)), channel, Instant.now())));
 
         return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()),
                 channel,

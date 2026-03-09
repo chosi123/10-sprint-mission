@@ -55,7 +55,7 @@ class BasicReadStatusService implements ReadStatusService {
 
         //생성 및 저장
         ReadStatus readStatus = readStatusRepository.save(new ReadStatus(user,
-                channel));
+                channel, readStatusCreateRequestDto.lastReadAt()));
 
         return readStatusResponseMapper.toDto(readStatus);
     }
