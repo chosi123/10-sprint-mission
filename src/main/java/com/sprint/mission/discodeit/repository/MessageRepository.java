@@ -19,8 +19,17 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @EntityGraph(attributePaths = {"author", "author.userStatus"})
     Slice<Message> findByChannelIdAndCreatedAtLessThan(UUID channelId, Instant cursor, Pageable pageable);
 
-    @Query("SELECT max(m.createdAt) FROM Message m WHERE m.channel.id= :channelId")
+    @Query("""
+SELECT max(m.createdAt)
+FROM Message m
+WHERE m.channel.id= :channelId""")
     Instant findLastMessageTimeWithChannelId(UUID channelId);
 
-
+    @Query("""
+SELECT m.channel.id, MAX(m.createdAt)
+FROM Message m
+WHERE m.channel.id IN :channelIds
+GROUP BY m.channel.id
+""")
+    List<Object[]> findLastMessageTimes(List<UUID> channelIds);
 }

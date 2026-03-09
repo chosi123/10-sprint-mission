@@ -23,8 +23,8 @@ public abstract class ChannelResponseMapper {
     private UserResponseMapper userResponseMapper;
 
     @Mapping(source = "lastMessageTime", target = "lastMessageAt")
-    @Mapping(target = "participants", expression = "java(getParticipants(channel))")
-    public abstract ChannelResponseDto toDto(Instant lastMessageTime, Channel channel);
+    @Mapping(source = "participants", target = "participants")
+    public abstract ChannelResponseDto toDto(Instant lastMessageTime, Channel channel, List<UserResponseDto> participants);
 
     protected List<UserResponseDto> getParticipants(Channel channel){
         return readStatusRepository.findAllByChannelId(channel.getId()).stream()
