@@ -15,8 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 import java.util.UUID;
 
-@Mapper(componentModel = "spring", uses = {BinaryContentProvider.class})
+@Mapper(componentModel = "spring")
 public interface BinaryContentResponseMapper {
-    @Mapping(target = "bytes", source = "id", qualifiedByName = "fetchBytesFromId")
     BinaryContentResponseDto toDto(BinaryContent binaryContent);
 }
