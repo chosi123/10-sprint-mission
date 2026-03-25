@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/users")
 @Tag(name = "User", description = "유저 관련 API")
+@Slf4j
 public class UserController {
     private final UserService userService;
     private final UserStatusService userStatusService;
@@ -49,7 +51,13 @@ public class UserController {
             @RequestPart("userCreateRequest") UserCreateRequestDto dto,
             @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
-        return ResponseEntity.status(201).body(userService.create(dto, profileImage));
+        log.info("회원가입 요청이 들어왔습니다. username: {}, email:{}", dto.username(), dto.email());
+
+        UserResponseDto result = userService.create(dto, profileImage);
+
+        log.info("회원가입에 성공했습니다. username: {}, email:{}", result.username(), result.email());
+
+        return ResponseEntity.status(201).body(result);
     }
 
     //사용자 정보 수정
@@ -75,12 +83,16 @@ public class UserController {
             )
     })
     @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH, consumes = "multipart/form-data")
-    public UserResponseDto update(
+    public ResponseEntity<UserResponseDto> update(
             @PathVariable UUID userId,
             @RequestPart("userUpdateRequest") UserUpdateRequestDto userUpdateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
-        return userService.update(userId, userUpdateRequest, profileImage);
+        log.info("회원 수정 요청이 들어왔습니다: userId: {}, newUsername: {}, newEmail: {}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
+        UserResponseDto result = userService.update(userId, userUpdateRequest, profileImage);
+        log.info("회원 수정이 완료되었습니다: userId: {}, username: {}, email: {}", userId, result.username(), result.email());
+
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "유저 삭제")
@@ -101,8 +113,12 @@ public class UserController {
             )
     })
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable UUID userId) {
+    public ResponseEntity<Void> delete(@PathVariable UUID userId) {
+        log.info("유저 삭제 요청이 들어왔습니다: userId: {}", userId);
         userService.delete(userId);
+        log.info("유저 삭제에 성공했습니다.");
+
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "가입한 모든 유저 반환")
