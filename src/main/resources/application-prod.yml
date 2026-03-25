@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://prod-db-server:5432/discodeit
+    username: discodeit_user
+    password: ${DB_PASSWORD}   # 환경변수 사용
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+    open-in-view: false
