@@ -114,9 +114,9 @@ public class UserController {
     })
     @RequestMapping(value = "/{userId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable UUID userId) {
-        log.info("유저 삭제 요청이 들어왔습니다: userId: {}", userId);
+        log.info("회원 삭제 요청이 들어왔습니다: userId: {}", userId);
         userService.delete(userId);
-        log.info("유저 삭제에 성공했습니다.");
+        log.info("회원 삭제에 성공했습니다.");
 
         return ResponseEntity.noContent().build();
     }

@@ -6,26 +6,29 @@ import com.sprint.mission.discodeit.dto.user.UserUpdateRequestDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.binarycontent.WrongImageException;
+import com.sprint.mission.discodeit.exception.user.EmailAlreadyExistException;
+import com.sprint.mission.discodeit.exception.user.UserNameAlreadyExistException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.user.UserResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
@@ -36,17 +39,23 @@ public class BasicUserService implements UserService {
     @Override
     @Transactional
     public UserResponseDto create(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImageFile) throws IOException {
+        log.debug("회원 생성 시작");
+
         //중복여부 검사 로직
-        if (userRepository.existsByEmail(userCreateRequestDto.email())
-                || userRepository.existsByUsername(userCreateRequestDto.username()))
-            throw new IllegalArgumentException("Username and Email already exists");
+        if (userRepository.existsByUsername(userCreateRequestDto.username())){
+            throw new UserNameAlreadyExistException(userCreateRequestDto.username());
+        }
+        if (userRepository.existsByEmail(userCreateRequestDto.email())){
+            throw new EmailAlreadyExistException(userCreateRequestDto.email());
+        }
 
         User user;
 
         //이미지 존재여부 분기
         if(profileImageFile != null){
-            if(profileImageFile.getContentType() == null || !profileImageFile.getContentType().startsWith("image/"))
-                throw new IllegalArgumentException("Invalid image file");
+            if(profileImageFile.getContentType() == null || !profileImageFile.getContentType().startsWith("image/")){
+                throw new WrongImageException(profileImageFile.getOriginalFilename(), profileImageFile.getContentType());
+            }
 
             BinaryContent profileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(profileImage);
@@ -93,19 +102,29 @@ public class BasicUserService implements UserService {
     @Transactional
     @Override
     public UserResponseDto update(UUID userId, UserUpdateRequestDto userUpdateRequestDto, MultipartFile profileImageFile) throws IOException {
+        log.info("회원 id '{}'에 대한 회원 정보 수정 시작", userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-
-        UserStatus userStatus = user.getUserStatus();
 
         BinaryContent newProfileImage;
 
         boolean anyValueUpdated = false;
         if (userUpdateRequestDto.newUsername() != null && !userUpdateRequestDto.newUsername().equals(user.getUsername())) {
+            //수정 시에도 중복 방지
+            if(userRepository.existsByUsername(userUpdateRequestDto.newUsername())){
+                throw new UserNameAlreadyExistException(userUpdateRequestDto.newUsername());
+            }
+
             user.setUsername(userUpdateRequestDto.newUsername());
             anyValueUpdated = true;
         }
         if (userUpdateRequestDto.newEmail() != null && !userUpdateRequestDto.newEmail().equals(user.getEmail())) {
+            //수정 시에도 중복 방지
+            if(userRepository.existsByEmail(userUpdateRequestDto.newEmail())){
+                throw new EmailAlreadyExistException(userUpdateRequestDto.newEmail());
+            }
+
             user.setEmail(userUpdateRequestDto.newEmail());
             anyValueUpdated = true;
         }
@@ -114,6 +133,11 @@ public class BasicUserService implements UserService {
             anyValueUpdated = true;
         }
         if(profileImageFile != null && !profileImageFile.isEmpty()){
+            //제공된 파일 타입 유효성 검증
+            if(profileImageFile.getContentType() == null || !profileImageFile.getContentType().startsWith("image/")){
+                throw new WrongImageException(profileImageFile.getOriginalFilename(), profileImageFile.getContentType());
+            }
+
             if(user.getProfile() != null){
                 binaryContentRepository.deleteById(user.getProfile().getId());
             }
@@ -128,6 +152,7 @@ public class BasicUserService implements UserService {
         }
 
         userRepository.save(user);
+        log.info("회원 정보 수정 완료");
 
         return userResponseMapper.toDto(user);
     }
@@ -135,11 +160,14 @@ public class BasicUserService implements UserService {
     @Transactional
     @Override
     public void delete(UUID userId) {
+        log.info("회원 id {}에 대한 회원 탈퇴 처리 시작", userId);
+
         //유저가 검색되지 않는 경우
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException(userId);
         }
 
         userRepository.deleteById(userId);//유저레포지토리에서 삭제
+        log.info("회원 id {}에 대한 회원 탈퇴 처리 완료", userId);
     }
 }
