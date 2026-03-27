@@ -2,7 +2,7 @@ package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.binarycontent.BinaryContentResponseDto;
 import com.sprint.mission.discodeit.entity.BinaryContent;
-import com.sprint.mission.discodeit.exception.BinaryContentNotFoundException;
+import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
 import com.sprint.mission.discodeit.mapper.binarycontent.BinaryContentResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.service.BinaryContentService;
@@ -32,7 +32,7 @@ public class BasicBinaryContentService implements BinaryContentService {
     @Override
     public BinaryContentResponseDto find(UUID binaryContentId) {
         BinaryContent binaryContent = binaryContentRepository.findById(binaryContentId)
-                .orElseThrow(() -> new BinaryContentNotFoundException("BinaryContent with id " + binaryContentId + " not found"));
+                .orElseThrow(() -> new BinaryContentNotFoundException(binaryContentId));
         return binaryContentResponseMapper.toDto(binaryContent);
     }
 
@@ -41,7 +41,7 @@ public class BasicBinaryContentService implements BinaryContentService {
         List<BinaryContent> binaryContents = new ArrayList<>();
 
         idList.forEach(id -> binaryContents.add(binaryContentRepository.findById(id)
-                .orElseThrow(() -> new BinaryContentNotFoundException("BinaryContent not found"))));
+                .orElseThrow(() -> new BinaryContentNotFoundException(id))));
 
         return binaryContents.stream()
                 .map(b->binaryContentResponseMapper.toDto(b))
