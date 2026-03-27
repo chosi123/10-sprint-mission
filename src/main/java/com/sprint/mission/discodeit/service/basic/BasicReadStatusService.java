@@ -7,9 +7,9 @@ import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.ReadStatusNotFoundException;
-import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.channel.ChannelResponseMapper;
 import com.sprint.mission.discodeit.mapper.readstatus.ReadStatusResponseMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -21,11 +21,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

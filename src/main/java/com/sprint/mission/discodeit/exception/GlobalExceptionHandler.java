@@ -1,10 +1,12 @@
 package com.sprint.mission.discodeit.exception;
 
 import com.sprint.mission.discodeit.exception.binarycontent.BinaryContentNotFoundException;
+import com.sprint.mission.discodeit.exception.binarycontent.FileStorageException;
 import com.sprint.mission.discodeit.exception.binarycontent.WrongImageException;
 import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
 import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
 import com.sprint.mission.discodeit.exception.user.EmailAlreadyExistException;
 import com.sprint.mission.discodeit.exception.user.UserNameAlreadyExistException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
@@ -47,10 +49,17 @@ public class GlobalExceptionHandler {
             UserNotFoundException.class,
             ChannelNotFoundException.class,
             MessageNotFoundException.class,
-            BinaryContentNotFoundException.class})
+            BinaryContentNotFoundException.class,
+            ReadStatusNotFoundException.class})
     public ResponseEntity<ErrorResponse> notFoundExceptionHandler(DiscodeitException e) {
         log.warn("{}: {}", e.getMessage(), e.getDetails());
         return toErrorResponse(e, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ErrorResponse> internalServerErrorExceptionHandler(DiscodeitException e) {
+        log.error("{}: {}", e.getMessage(), e.getDetails());
+        return toErrorResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ErrorResponse> toErrorResponse(DiscodeitException e, HttpStatus status) {
