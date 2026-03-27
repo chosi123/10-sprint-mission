@@ -14,7 +14,8 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND("해당 메시지를 찾을 수 없습니다."),
     FILE_STORAGE_FAILED("파일 저장 중 오류가 발생했습니다."),
     FILE_NOT_FOUND("파일을 찾을 수 없습니다."),
-    READ_STATUS_NOT_FOUND("연결된 Readstatus 객체를 찾을 수 없습니다.");
+    READ_STATUS_NOT_FOUND("연결된 Readstatus 객체를 찾을 수 없습니다."),
+    DOWNLOAD_FAILED("파일 다운로드에 실패했습니다.");
 
     private final String message;
 
