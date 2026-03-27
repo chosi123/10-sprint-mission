@@ -17,3 +17,10 @@ spring:
 logging:
   level:
     com.sprint.mission.discodeit: DEBUG
+
+info:
+  datasource:
+    url: ${spring.datasource.url}
+    driver-class-name: ${spring.datasource.driver-class-name}
+  jpa:
+    ddl-auto: ${spring.jpa.hibernate.ddl-auto}
