@@ -14,10 +14,14 @@ import com.sprint.mission.discodeit.exception.user.WrongPasswordException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
 import java.util.Map;
+
+import static com.sprint.mission.discodeit.exception.ErrorCode.NOT_VALID;
 
 @RestControllerAdvice
 @Slf4j
@@ -43,6 +47,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> badRequestExceptionHandler(DiscodeitException e) {
         log.warn("{}: {}", e.getMessage(), e.getDetails());
         return toErrorResponse(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<ErrorResponse> validationExceptionHandler(MethodArgumentNotValidException e) {
+        log.warn("{}", NOT_VALID.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ErrorResponse(
+                        Instant.now(),
+                        NOT_VALID.name(),
+                        NOT_VALID.getMessage(),
+                        null,
+                        e.getClass().getName(),
+                        HttpStatus.BAD_REQUEST.value()
+                )
+        );
     }
 
     @ExceptionHandler({
