@@ -7,9 +7,9 @@ import com.sprint.mission.discodeit.dto.channel.PublicChannelCreateRequestDto;
 import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
-import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.PrivateChannelUpdateException;
-import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.channel.ChannelResponseMapper;
 import com.sprint.mission.discodeit.mapper.user.UserResponseMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
@@ -17,12 +17,12 @@ import com.sprint.mission.discodeit.repository.MessageRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +33,7 @@ import static com.sprint.mission.discodeit.entity.ChannelType.PUBLIC;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BasicChannelService implements ChannelService {
     private final ChannelRepository channelRepository;
     private final ReadStatusRepository readStatusRepository;
@@ -45,8 +46,10 @@ public class BasicChannelService implements ChannelService {
     @Transactional
     @Override
     public ChannelResponseDto createPublicChannel(PublicChannelCreateRequestDto requestDto) {
+        log.info("공개 채널 생성 시작");
         Channel channel = new Channel(PUBLIC, requestDto.name(), requestDto.description());
         channelRepository.save(channel);
+        log.info("공개 채널 생성 완료");
 
         return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()),
                 channel,
@@ -56,6 +59,7 @@ public class BasicChannelService implements ChannelService {
     @Override
     @Transactional
     public ChannelResponseDto createPrivateChannel(PrivateChannelCreateRequestDto requestDto) {
+        log.info("비공개 채널 생성 시작");
         Channel channel = new Channel(PRIVATE, null, null);
         channelRepository.save(channel);
 
@@ -63,6 +67,7 @@ public class BasicChannelService implements ChannelService {
                 .forEach(user-> readStatusRepository.save(new ReadStatus(userRepository.findById(user)
                         .orElseThrow(()->new UserNotFoundException(user)), channel, Instant.now())));
 
+        log.info("비공개 채널 생성 완료");
         return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()),
                 channel,
                 getParticpantsWithoutReadstatusList(channel));
@@ -110,14 +115,16 @@ public class BasicChannelService implements ChannelService {
     @Transactional
     @Override
     public ChannelResponseDto update(UUID channelId, ChannelUpdateRequestDto updateRequestDto) {
+        log.info("채널 정보 수정 시작");
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() -> new ChannelNotFoundException(channelId));
 
-        if(channel.getType()==PRIVATE) throw new PrivateChannelUpdateException();
+        if(channel.getType()==PRIVATE) throw new PrivateChannelUpdateException(channelId);
 
         channel.update(updateRequestDto.newName(), updateRequestDto.newDescription());
 
         channelRepository.save(channel);
+        log.info("채널 정보 수정 완료");
 
         return channelResponseMapper.toDto(messageRepository.findLastMessageTimeWithChannelId(channel.getId()),
                 channel,
@@ -127,10 +134,11 @@ public class BasicChannelService implements ChannelService {
     @Transactional
     @Override
     public void delete(UUID channelId) {
+        log.info("채널 삭제 작업 시작");
         if (!channelRepository.existsById(channelId)) {
             throw new ChannelNotFoundException(channelId);
         }
-
+        log.info("채널 삭제 작업 완료");
         channelRepository.deleteById(channelId);
     }
 
