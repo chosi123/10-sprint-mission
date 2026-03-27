@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,7 @@ public class UserController {
     })
     @RequestMapping(method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<UserResponseDto> create(
-            @RequestPart("userCreateRequest") UserCreateRequestDto dto,
+            @RequestPart("userCreateRequest") @Valid UserCreateRequestDto dto,
             @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
         log.info("회원가입 요청이 들어왔습니다. username: {}, email:{}", dto.username(), dto.email());
@@ -85,7 +86,7 @@ public class UserController {
     @RequestMapping(value = "/{userId}", method = RequestMethod.PATCH, consumes = "multipart/form-data")
     public ResponseEntity<UserResponseDto> update(
             @PathVariable UUID userId,
-            @RequestPart("userUpdateRequest") UserUpdateRequestDto userUpdateRequest,
+            @RequestPart("userUpdateRequest") @Valid UserUpdateRequestDto userUpdateRequest,
             @RequestPart(value = "profile", required = false) MultipartFile profileImage
     ) throws IOException {
         log.info("회원 수정 요청이 들어왔습니다: userId: {}, newUsername: {}, newEmail: {}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());

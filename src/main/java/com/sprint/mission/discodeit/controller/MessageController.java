@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -58,7 +59,7 @@ public class MessageController {
     })
     @RequestMapping(method = RequestMethod.POST, consumes = "multipart/form-data")
     public ResponseEntity<MessageResponseDto> postMessage(
-            @RequestPart(value = "messageCreateRequest") MessageCreateRequestDto requestDto,
+            @RequestPart(value = "messageCreateRequest") @Valid MessageCreateRequestDto requestDto,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
             ){
         log.info("메시지 전송 요청이 들어왔습니다. message: {}", requestDto);
@@ -92,7 +93,7 @@ public class MessageController {
     })
     @RequestMapping(value = "/{messageId}", method = RequestMethod.PATCH)
     public ResponseEntity<MessageResponseDto> patchMessage(
-            @RequestBody MessageUpdateRequestDto requestDto,
+            @RequestBody @Valid MessageUpdateRequestDto requestDto,
             @PathVariable UUID messageId){
         log.info("메시지 수정 요청이 들어왔습니다. messageId: {}, dto: {}", messageId, requestDto);
 

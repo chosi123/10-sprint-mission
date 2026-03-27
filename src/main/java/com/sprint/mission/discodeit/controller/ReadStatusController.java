@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +57,7 @@ public class ReadStatusController {
     })
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<ReadStatusResponseDto> create_1(
-            @RequestBody ReadStatusCreateRequestDto dto
+            @RequestBody @Valid ReadStatusCreateRequestDto dto
     ){
         return ResponseEntity.status(201).body(readStatusService.create(dto));
     }

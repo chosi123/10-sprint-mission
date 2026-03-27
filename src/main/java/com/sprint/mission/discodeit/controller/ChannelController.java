@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,7 @@ public class ChannelController {
     })
     @RequestMapping(value = "/public", method = RequestMethod.POST)
     public ResponseEntity<ChannelResponseDto> createPublicChannel(
-            @RequestBody PublicChannelCreateRequestDto requestDto
+            @RequestBody @Valid PublicChannelCreateRequestDto requestDto
     ){
         log.info("공개 채널 생성 요청이 들어왔습니다. {}", requestDto);
         ResponseEntity<ChannelResponseDto> result = ResponseEntity.status(201).body(channelService.createPublicChannel(requestDto));
@@ -65,7 +66,7 @@ public class ChannelController {
     })
     @RequestMapping(value = "/private", method = RequestMethod.POST)
     public ResponseEntity<ChannelResponseDto> createPrivateChannel(
-            @RequestBody PrivateChannelCreateRequestDto requestDto
+            @RequestBody @Valid PrivateChannelCreateRequestDto requestDto
     ){
         log.info("비공개 채널 생성 요청이 들어왔습니다. {}", requestDto);
         ResponseEntity<ChannelResponseDto> result = ResponseEntity.status(201).body(channelService.createPrivateChannel(requestDto));
@@ -105,7 +106,7 @@ public class ChannelController {
             )
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<ChannelResponseDto> updateChannel(@RequestBody ChannelUpdateRequestDto requestDto, @PathVariable UUID id){
+    public ResponseEntity<ChannelResponseDto> updateChannel(@RequestBody @Valid ChannelUpdateRequestDto requestDto, @PathVariable UUID id){
         log.info("채널 정보 수정 요청이 들어왔습니다. id: {}, dto: {}", id, requestDto);
         ResponseEntity<ChannelResponseDto> result = ResponseEntity.status(200).body(channelService.update(id, requestDto));
         log.info("채널 정보 수정 요청이 모두 처리되었습니다.");
