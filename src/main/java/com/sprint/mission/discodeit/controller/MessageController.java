@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -31,6 +32,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/messages")
 @Tag(name = "Message", description = "메시지 관련 API")
+@Slf4j
 public class MessageController {
     private final MessageService messageService;
 
@@ -58,8 +60,14 @@ public class MessageController {
     public ResponseEntity<MessageResponseDto> postMessage(
             @RequestPart(value = "messageCreateRequest") MessageCreateRequestDto requestDto,
             @RequestPart(value = "attachments", required = false) List<MultipartFile> attachments
-            )throws IOException {
-        return ResponseEntity.status(201).body(messageService.create(requestDto, attachments));
+            ){
+        log.info("메시지 전송 요청이 들어왔습니다. message: {}", requestDto);
+
+        ResponseEntity<MessageResponseDto> result = ResponseEntity.status(201).body(messageService.create(requestDto, attachments));
+
+        log.info("메시지 전송 요청이 처리되었습니다.");
+
+        return result;
     }
 
     @Operation(summary = "메시지 수정", operationId = "update_2")
@@ -86,7 +94,13 @@ public class MessageController {
     public ResponseEntity<MessageResponseDto> patchMessage(
             @RequestBody MessageUpdateRequestDto requestDto,
             @PathVariable UUID messageId){
-        return ResponseEntity.ok(messageService.update(messageId, requestDto, null));
+        log.info("메시지 수정 요청이 들어왔습니다. messageId: {}, dto: {}", messageId, requestDto);
+
+        ResponseEntity<MessageResponseDto> result = ResponseEntity.ok(messageService.update(messageId, requestDto, null));
+
+        log.info("메시지 수정 요청이 처리되었습니다.");
+
+        return result;
     }
 
     @Operation(summary = "메시지 삭제", operationId = "delete_1")
@@ -107,7 +121,9 @@ public class MessageController {
     })
     @RequestMapping(value = "/{messageId}", method = RequestMethod.DELETE)
     public void deleteMessage(@PathVariable UUID messageId){
+        log.info("메시지 삭제 요청이 들어왔습니다. messageId: {}", messageId);
         messageService.delete(messageId);
+        log.info("메시지 삭제 요청이 처리되었습니다. messageId: {}", messageId);
     }
 
     @Operation(summary = "채널 내의 모든 메시지 출력", operationId = "findAllByChannelId")
