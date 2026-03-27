@@ -5,9 +5,10 @@ import com.sprint.mission.discodeit.dto.message.MessageResponseDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequestDto;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
 import com.sprint.mission.discodeit.entity.*;
-import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
-import com.sprint.mission.discodeit.exception.MessageNotFoundException;
-import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.exception.binarycontent.FileStorageException;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.mapper.message.MessageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -19,10 +20,9 @@ import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.data.domain.PageRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +34,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BasicMessageService implements MessageService {
     private final MessageRepository messageRepository;
     //
@@ -49,6 +50,8 @@ public class BasicMessageService implements MessageService {
     @Override
     @Transactional
     public MessageResponseDto create(MessageCreateRequestDto messageCreateRequestDto, List<MultipartFile> files) {
+        log.info("메시지 전송 작업을 시작합니다.");
+
         Channel channel = channelRepository.findById(messageCreateRequestDto.channelId())
                 .orElseThrow(() -> new ChannelNotFoundException(messageCreateRequestDto.channelId()));
         User user = userRepository.findById(messageCreateRequestDto.authorId())
@@ -68,9 +71,9 @@ public class BasicMessageService implements MessageService {
                 .forEach(file ->
                         message.getAttachments().add(new MessageAttachment(message, toBinaryContent(file))));
 
-        messageRepository.save(message);
-
-        return messageResponseMapper.toDto(message);
+        Message savedMessage = messageRepository.save(message);
+        log.info("메시지 전송 작업이 완료되었습니다.");
+        return messageResponseMapper.toDto(savedMessage);
     }
 
 
@@ -104,6 +107,7 @@ public class BasicMessageService implements MessageService {
             UUID id,
             MessageUpdateRequestDto requestDto, List<MultipartFile> files
     ) {
+        log.info("메시지 수정 작업을 시작합니다.");
         Message message = messageRepository.findById(id)
                 .orElseThrow(() ->
                         new MessageNotFoundException(id)
@@ -136,19 +140,21 @@ public class BasicMessageService implements MessageService {
         );
 
         messageRepository.save(message);
-
+        log.info("메시지 수정 작업이 완료되었습니다.");
         return messageResponseMapper.toDto(message);
     }
 
     @Override
     @Transactional
     public void delete(UUID messageId) {
+        log.info("메시지 삭제 작업을 시작합니다. messageId: {}", messageId);
         if (!messageRepository.existsById(messageId)) {
             throw new MessageNotFoundException(messageId);
         }
 
         // 메시지레포에서 삭제
         messageRepository.deleteById(messageId);
+        log.info("메시지 삭제 작업이 완료되었습니다.");
     }
 
     private BinaryContent toBinaryContent(MultipartFile file) {
@@ -158,11 +164,7 @@ public class BasicMessageService implements MessageService {
             binaryContentStorage.put(binaryContent.getId(), file.getBytes());
             return binaryContent;
         } catch (IOException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to read attachment",
-                    e
-            );
+            throw new FileStorageException();
         }
     }
 

@@ -21,15 +21,6 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({BinaryContentNotFoundException.class, ChannelNotFoundException.class, MessageNotFoundException.class})
-    public ResponseEntity<?> NotFoundHandler(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of(
-                        "status", HttpStatus.NOT_FOUND.value(),
-                        "message", e.getMessage()
-                ));
-    }
-
     @ExceptionHandler(WrongPasswordException.class)
     public ResponseEntity<?> WrongPasswordHandler(WrongPasswordException e){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
@@ -39,21 +30,25 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PrivateChannelUpdateException.class)
-    public ResponseEntity<?> PrivateChannelUpdateHandler(PrivateChannelUpdateException e){
-        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(
-                Map.of("status", HttpStatus.NOT_ACCEPTABLE.value(),
-                        "message", e.getMessage())
-        );
+    public ResponseEntity<ErrorResponse> notAcceptableHandler(DiscodeitException e){
+        log.warn("{}: {}", e.getMessage(), e.getDetails());
+        return toErrorResponse(e, HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler({UserNameAlreadyExistException.class, EmailAlreadyExistException.class, WrongImageException.class})
-    public ResponseEntity<ErrorResponse> BadRequestExceptionHandler(DiscodeitException e) {
+    @ExceptionHandler({UserNameAlreadyExistException.class,
+            EmailAlreadyExistException.class,
+            WrongImageException.class})
+    public ResponseEntity<ErrorResponse> badRequestExceptionHandler(DiscodeitException e) {
         log.warn("{}: {}", e.getMessage(), e.getDetails());
         return toErrorResponse(e, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({UserNotFoundException.class})
-    public ResponseEntity<ErrorResponse> userNotFoundExceptionHandler(DiscodeitException e) {
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            ChannelNotFoundException.class,
+            MessageNotFoundException.class,
+            BinaryContentNotFoundException.class})
+    public ResponseEntity<ErrorResponse> notFoundExceptionHandler(DiscodeitException e) {
         log.warn("{}: {}", e.getMessage(), e.getDetails());
         return toErrorResponse(e, HttpStatus.NOT_FOUND);
     }
