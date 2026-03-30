@@ -66,8 +66,6 @@ public class MessageController {
 
         ResponseEntity<MessageResponseDto> result = ResponseEntity.status(201).body(messageService.create(requestDto, attachments));
 
-        log.info("메시지 전송 요청이 처리되었습니다.");
-
         return result;
     }
 
@@ -98,8 +96,6 @@ public class MessageController {
         log.info("메시지 수정 요청이 들어왔습니다. messageId: {}, dto: {}", messageId, requestDto);
 
         ResponseEntity<MessageResponseDto> result = ResponseEntity.ok(messageService.update(messageId, requestDto, null));
-
-        log.info("메시지 수정 요청이 처리되었습니다.");
 
         return result;
     }

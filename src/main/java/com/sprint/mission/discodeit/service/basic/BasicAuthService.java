@@ -30,7 +30,7 @@ public class BasicAuthService implements AuthService {
                 .orElseThrow(() -> new UserNotFoundException(loginRequestDto.username()));
 
         if(!targetUser.getPassword().equals(loginRequestDto.password())){
-            throw new WrongPasswordException();
+            throw new WrongPasswordException(targetUser.getUsername());
         }
 
         UserStatus userStatus = userStatusRepository.findByUserId(targetUser.getId())

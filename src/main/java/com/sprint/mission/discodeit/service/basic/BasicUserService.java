@@ -102,7 +102,6 @@ public class BasicUserService implements UserService {
     @Transactional
     @Override
     public UserResponseDto update(UUID userId, UserUpdateRequestDto userUpdateRequestDto, MultipartFile profileImageFile) throws IOException {
-        log.info("회원 id '{}'에 대한 회원 정보 수정 시작", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -152,7 +151,7 @@ public class BasicUserService implements UserService {
         }
 
         userRepository.save(user);
-        log.info("회원 정보 수정 완료");
+        log.info("회원 정보 수정이 완료되었습니다: userId: {}, username: {}, email: {}", userId, user.getUsername(), user.getEmail());
 
         return userResponseMapper.toDto(user);
     }
@@ -160,7 +159,6 @@ public class BasicUserService implements UserService {
     @Transactional
     @Override
     public void delete(UUID userId) {
-        log.info("회원 id {}에 대한 회원 탈퇴 처리 시작", userId);
 
         //유저가 검색되지 않는 경우
         if (!userRepository.existsById(userId)) {

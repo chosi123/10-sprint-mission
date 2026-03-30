@@ -7,6 +7,6 @@ import static com.sprint.mission.discodeit.exception.ErrorCode.FILE_NOT_FOUND;
 
 public class BinaryContentNotFoundException extends BinaryContentException {
     public BinaryContentNotFoundException(UUID id) {
-        super(FILE_NOT_FOUND, Map.of("message", id));
+        super(FILE_NOT_FOUND, Map.of("id", id));
     }
 }

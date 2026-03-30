@@ -91,7 +91,6 @@ public class UserController {
     ) throws IOException {
         log.info("회원 수정 요청이 들어왔습니다: userId: {}, newUsername: {}, newEmail: {}", userId, userUpdateRequest.newUsername(), userUpdateRequest.newEmail());
         UserResponseDto result = userService.update(userId, userUpdateRequest, profileImage);
-        log.info("회원 수정이 완료되었습니다: userId: {}, username: {}, email: {}", userId, result.username(), result.email());
 
         return ResponseEntity.ok(result);
     }
@@ -117,7 +116,6 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable UUID userId) {
         log.info("회원 삭제 요청이 들어왔습니다: userId: {}", userId);
         userService.delete(userId);
-        log.info("회원 삭제에 성공했습니다.");
 
         return ResponseEntity.noContent().build();
     }

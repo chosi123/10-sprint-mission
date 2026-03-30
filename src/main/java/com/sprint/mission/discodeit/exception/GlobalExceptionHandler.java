@@ -29,10 +29,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(WrongPasswordException.class)
     public ResponseEntity<?> WrongPasswordHandler(WrongPasswordException e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                Map.of("status", HttpStatus.UNAUTHORIZED.value(),
-                        "message", e.getMessage())
-        );
+        log.warn("{}: {}", e.getMessage(), e.getDetails());
+        return toErrorResponse(e, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(PrivateChannelUpdateException.class)

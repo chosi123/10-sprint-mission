@@ -49,7 +49,6 @@ public class ChannelController {
     ){
         log.info("공개 채널 생성 요청이 들어왔습니다. {}", requestDto);
         ResponseEntity<ChannelResponseDto> result = ResponseEntity.status(201).body(channelService.createPublicChannel(requestDto));
-        log.info("공개 채널 생성이 완료되었습니다.");
         return result;
     }
 
@@ -70,7 +69,6 @@ public class ChannelController {
     ){
         log.info("비공개 채널 생성 요청이 들어왔습니다. {}", requestDto);
         ResponseEntity<ChannelResponseDto> result = ResponseEntity.status(201).body(channelService.createPrivateChannel(requestDto));
-        log.info("비공개 채널 생성이 처리되었습니다.");
         return result;
     }
 
