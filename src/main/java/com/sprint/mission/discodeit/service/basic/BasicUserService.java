@@ -32,14 +32,13 @@ import java.util.*;
 public class BasicUserService implements UserService {
     private final UserRepository userRepository;
     private final BinaryContentRepository binaryContentRepository;
-    private final UserStatusRepository userStatusRepository;
     private final UserResponseMapper userResponseMapper;
     private final BinaryContentStorage binaryContentStorage;
 
     @Override
     @Transactional
-    public UserResponseDto create(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImageFile) throws IOException {
-        log.debug("회원 생성 시작");
+    public UserResponseDto create(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImageFile) {
+        log.debug("회원 생성 시작: username: {}, email: {}", userCreateRequestDto.username(), userCreateRequestDto.email());
 
         //중복여부 검사 로직
         if (userRepository.existsByUsername(userCreateRequestDto.username())){
@@ -59,7 +58,13 @@ public class BasicUserService implements UserService {
 
             BinaryContent profileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(profileImage);
-            binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
+
+            try{
+                binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
+
+            }catch (IOException e){
+                throw new WrongImageException(profileImageFile.getOriginalFilename(), profileImageFile.getContentType());
+            }
 
             user = new User(userCreateRequestDto.username(),
                     userCreateRequestDto.email(),

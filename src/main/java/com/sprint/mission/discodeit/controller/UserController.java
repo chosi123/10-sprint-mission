@@ -56,8 +56,6 @@ public class UserController {
 
         UserResponseDto result = userService.create(dto, profileImage);
 
-        log.info("회원가입에 성공했습니다. username: {}, email:{}", result.username(), result.email());
-
         return ResponseEntity.status(201).body(result);
     }
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
-    UserResponseDto create(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImageFile) throws IOException;
+    UserResponseDto create(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImageFile);
     UserResponseDto find(UUID userId);
     List<UserResponseDto> findAll();
     UserResponseDto update(UUID userId, UserUpdateRequestDto userUpdateRequestDto, MultipartFile profileImageFile) throws IOException;
