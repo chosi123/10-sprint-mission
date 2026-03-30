@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.controller;
 
 import com.sprint.mission.discodeit.dto.user.LoginRequestDto;
-import com.sprint.mission.discodeit.dto.user.LoginResponseDto;
-import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.dto.user.UserResponseDto;
 import com.sprint.mission.discodeit.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +30,7 @@ public class AuthController {
                     description = "로그인 성공",
                     content = @Content(
                             mediaType = "*/*",
-                            schema = @Schema(implementation = LoginResponseDto.class)
+                            schema = @Schema(implementation = UserResponseDto.class)
                     )
             ),
 

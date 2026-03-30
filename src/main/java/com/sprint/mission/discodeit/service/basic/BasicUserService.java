@@ -12,6 +12,8 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserService;
+import com.sprint.mission.discodeit.storage.BinaryContentStorage;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,80 +31,72 @@ public class BasicUserService implements UserService {
     private final BinaryContentRepository binaryContentRepository;
     private final UserStatusRepository userStatusRepository;
     private final UserResponseMapper userResponseMapper;
+    private final BinaryContentStorage binaryContentStorage;
 
     @Override
+    @Transactional
     public UserResponseDto create(UserCreateRequestDto userCreateRequestDto, MultipartFile profileImageFile) throws IOException {
         //중복여부 검사 로직
-        if (userRepository.findAll().stream()
-                .anyMatch(user ->
-                        user.getUsername().equals(userCreateRequestDto.username()) ||
-                                user.getEmail().equals(userCreateRequestDto.email())
-                )) throw new IllegalArgumentException("Username or Email already exists");
+        if (userRepository.existsByEmail(userCreateRequestDto.email())
+                || userRepository.existsByUsername(userCreateRequestDto.username()))
+            throw new IllegalArgumentException("Username and Email already exists");
 
         User user;
+
         //이미지 존재여부 분기
         if(profileImageFile != null){
             if(profileImageFile.getContentType() == null || !profileImageFile.getContentType().startsWith("image/"))
                 throw new IllegalArgumentException("Invalid image file");
 
-            BinaryContent profileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
+            BinaryContent profileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(profileImage);
+            binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
 
             user = new User(userCreateRequestDto.username(),
                     userCreateRequestDto.email(),
                     userCreateRequestDto.password(),
-                    profileImage.getId());
+                    profileImage);
         }
         else user = new User(userCreateRequestDto.username(),
                 userCreateRequestDto.email(),
                 userCreateRequestDto.password(),
                 null);
+        UserStatus userStatus = new UserStatus();
+        user.setUserStatus(userStatus);
 
         //최종 저장
         userRepository.save(user);
 
-        //userStatus 생성
-        UserStatus userStatus = new UserStatus(user.getId());
-        userStatusRepository.save(userStatus);
-
-        //영속화
-        if(profileImageFile != null && !profileImageFile.isEmpty()){
-            String fileName = profileImageFile.getOriginalFilename();
-            Path savePath = Paths.get("./upload/" + fileName);
-            Files.createDirectories(savePath.getParent());
-            profileImageFile.transferTo(savePath);
-        }
-
         //저장된 데이터 리턴
-        return userResponseMapper.toDto(user, userStatus);
+        return userResponseMapper.toDto(user);
     }
 
+    @Transactional
     @Override
     public UserResponseDto find(UUID userId) {
         User targetUser = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        UserStatus targetUserStatus = userStatusRepository.findByUserId(targetUser.getId())
-                .orElseThrow(() -> new NoSuchElementException("UserStatus with id " + targetUser.getId() + " not found"));
-
-        return userResponseMapper.toDto(targetUser, targetUserStatus);
+        return userResponseMapper.toDto(targetUser);
     }
 
+    @Transactional
     @Override
     public List<UserResponseDto> findAll() {
         List<User> targetUsers = userRepository.findAll();
 
         return targetUsers.stream()
-                .map(user -> find(user.getId()))
+                .map(userResponseMapper::toDto)
                 .toList();
     }
 
+    @Transactional
     @Override
     public UserResponseDto update(UUID userId, UserUpdateRequestDto userUpdateRequestDto, MultipartFile profileImageFile) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        UserStatus userStatus = userStatusRepository.findByUserId(user.getId()).orElseThrow();
+        UserStatus userStatus = user.getUserStatus();
 
         BinaryContent newProfileImage;
 
@@ -120,18 +114,14 @@ public class BasicUserService implements UserService {
             anyValueUpdated = true;
         }
         if(profileImageFile != null && !profileImageFile.isEmpty()){
-            if(user.getProfileId() != null){
-                binaryContentRepository.deleteById(user.getProfileId());
+            if(user.getProfile() != null){
+                binaryContentRepository.deleteById(user.getProfile().getId());
             }
-            newProfileImage = new BinaryContent(profileImageFile.getBytes(), profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
+            newProfileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(newProfileImage);
-            user.setProfileId(newProfileImage.getId());
+            binaryContentStorage.put(newProfileImage.getId(), profileImageFile.getBytes());
+            user.setProfile(newProfileImage);
 
-            //영속화
-            String fileName = profileImageFile.getOriginalFilename();
-            Path savePath = Paths.get("./upload/" + fileName);
-            Files.createDirectories(savePath.getParent());
-            profileImageFile.transferTo(savePath);
         }
         if (anyValueUpdated) {
             user.isUpdated();
@@ -139,21 +129,16 @@ public class BasicUserService implements UserService {
 
         userRepository.save(user);
 
-        return userResponseMapper.toDto(user, userStatus);
+        return userResponseMapper.toDto(user);
     }
 
+    @Transactional
     @Override
     public void delete(UUID userId) {
         //유저가 검색되지 않는 경우
         if (!userRepository.existsById(userId)) {
-            throw new NoSuchElementException("User with id " + userId + " not found");
+            throw new UserNotFoundException(userId);
         }
-
-        User deletedUser = userRepository.findById(userId).get();
-        binaryContentRepository.deleteById(deletedUser.getProfileId());//프로필 이미지 삭제
-
-        UserStatus userStatus = userStatusRepository.findByUserId(userId).get();
-        userStatusRepository.deleteById(userStatus.getId());//스테이터스 삭제
 
         userRepository.deleteById(userId);//유저레포지토리에서 삭제
     }

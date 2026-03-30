@@ -1,39 +1,52 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
-import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "messages")
 @Getter
-public class Message extends DefaultEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
-    //
+public class Message extends BaseUpdatableEntity {
+    @Column(columnDefinition = "text")
     private String content;
     //
-    private UUID channelId;
-    private UUID authorId;
-    private List<UUID> attachmentIds;
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id", nullable = false)
+    private Channel channel;
 
-    public Message(String content, UUID channelId, UUID authorId, List<UUID> attachments) {
-        super();
-        //
-        this.content = content;
-        this.channelId = channelId;
-        this.authorId = authorId;
-        this.attachmentIds = attachments;
-    }
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
 
-    public void update(String newContent, List<UUID> newAttachments) {
+    @OneToMany(
+            mappedBy = "message",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @BatchSize(size = 50)
+    private List<MessageAttachment> attachments = new ArrayList<>();
+
+    public void update(String newContent, List<MessageAttachment> newAttachments) {
         boolean anyValueUpdated = false;
         if (newContent != null && !newContent.equals(this.content)) {
             this.content = newContent;
             anyValueUpdated = true;
         }
-        if (newAttachments != null && !newAttachments.equals(this.attachmentIds)) {
-            this.attachmentIds = newAttachments;
+        if (newAttachments != null && !newAttachments.equals(this.attachments)) {
+            this.attachments = newAttachments;
             anyValueUpdated = true;
         }
 

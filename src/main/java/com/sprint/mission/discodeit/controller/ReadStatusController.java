@@ -108,11 +108,11 @@ public class ReadStatusController {
             )
     })
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<List<IsMessageReadResponseDto>> getReadStatus(
+    public ResponseEntity<List<ReadStatusResponseDto>> getReadStatus(
             @RequestParam UUID userId
             ){
 
-        List<IsMessageReadResponseDto> dtoList = readStatusService.findAllByUserId(userId);
+        List<ReadStatusResponseDto> dtoList = readStatusService.findAllByUserId(userId);
 
         return ResponseEntity.ok(dtoList);
     }

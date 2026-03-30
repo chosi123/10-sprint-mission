@@ -1,15 +1,35 @@
 package com.sprint.mission.discodeit.repository;
 
 import com.sprint.mission.discodeit.entity.Message;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public interface MessageRepository {
-    Message save(Message message);
-    Optional<Message> findById(UUID id);
-    List<Message> findAll();
-    boolean existsById(UUID id);
-    void deleteById(UUID id);
+public interface MessageRepository extends JpaRepository<Message, UUID> {
+    List<Message> findByChannelIdOrderByCreatedAtAsc(UUID channelId);
+    @EntityGraph(attributePaths = {"author", "author.userStatus"})
+    Slice<Message> findByChannelId(UUID channelId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"author", "author.userStatus"})
+    Slice<Message> findByChannelIdAndCreatedAtLessThan(UUID channelId, Instant cursor, Pageable pageable);
+
+    @Query("""
+SELECT max(m.createdAt)
+FROM Message m
+WHERE m.channel.id= :channelId""")
+    Instant findLastMessageTimeWithChannelId(UUID channelId);
+
+    @Query("""
+SELECT m.channel.id, MAX(m.createdAt)
+FROM Message m
+WHERE m.channel.id IN :channelIds
+GROUP BY m.channel.id
+""")
+    List<Object[]> findLastMessageTimes(List<UUID> channelIds);
 }

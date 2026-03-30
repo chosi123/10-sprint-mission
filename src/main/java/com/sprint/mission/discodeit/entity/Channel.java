@@ -1,23 +1,34 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 import static com.sprint.mission.discodeit.entity.ChannelType.PRIVATE;
 
+@Entity
+@Table(name = "channels")
+@NoArgsConstructor
 @Getter
-public class Channel extends DefaultEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Channel extends BaseUpdatableEntity {
     //
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
     private ChannelType type;
+
+    @Size(max = 100)
+    @Column(length = 100)
     private String name = null;
+
+    @Size(max = 500)
+    @Column(length = 500)
     private String description = null;
-    private List<UUID> participantIds = null;
 
     public Channel(ChannelType type, String name, String description) {
         super();
@@ -25,7 +36,7 @@ public class Channel extends DefaultEntity implements Serializable {
         this.type = type;
 
         if(type == PRIVATE){
-            participantIds = new ArrayList<>();
+            //participantIds = new ArrayList<>();
         }
         else{
             this.name = name;
@@ -51,12 +62,9 @@ public class Channel extends DefaultEntity implements Serializable {
             this.updatedAt = Instant.now();
         }
     }
-
+/*
     public void join(UUID userId){
         participantIds.add(userId);
     }
-
-    public void leave(UUID userId){
-        if(!participantIds.contains(userId)) participantIds.remove(userId);
-    }
+    */
 }

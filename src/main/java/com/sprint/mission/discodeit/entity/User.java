@@ -1,32 +1,55 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-public class User extends DefaultEntity implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    //
+@NoArgsConstructor
+@Entity
+@Table(name = "users")
+public class User extends BaseUpdatableEntity {
+    @NotNull
+    @Size(min = 1, max = 50)
+    @Column(unique = true, nullable = false, length = 50)
     private String username;
-    private String email;
-    private String password;
-    private UUID profileId;
 
-    public User(String username, String email, String password, UUID profileId) {
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(unique = true, nullable = false, length = 100)
+    private String email;
+
+    @NotNull
+    @Size(min = 1, max = 60)
+    @Column(nullable = false)
+    private String password;
+
+    @OneToOne
+    @JoinColumn(name = "profile_id", unique = true)
+    private BinaryContent profile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserStatus userStatus;
+
+    public void setUserStatus(UserStatus userStatus) {
+        this.userStatus = userStatus;
+        if(userStatus != null) userStatus.setUser(this);
+    }
+
+    public User(String username, String email, String password, BinaryContent profile) {
         super();
         //
         this.username = username;
         this.email = email;
         this.password = password;
-        this.profileId = profileId;
+        this.profile = profile;
     }
 
     public void isUpdated(){
