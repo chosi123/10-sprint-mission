@@ -10,6 +10,4 @@ node_modules
 *.iml
 *.log
 .DS_Store
-.env
-.env.*
 db
