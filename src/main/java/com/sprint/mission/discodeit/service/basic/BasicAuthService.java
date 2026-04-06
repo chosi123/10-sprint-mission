@@ -1,43 +1,42 @@
 package com.sprint.mission.discodeit.service.basic;
 
-import com.sprint.mission.discodeit.dto.user.LoginRequestDto;
-import com.sprint.mission.discodeit.dto.user.UserResponseDto;
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.entity.UserStatus;
+import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
-import com.sprint.mission.discodeit.exception.user.WrongPasswordException;
-import com.sprint.mission.discodeit.mapper.user.UserResponseMapper;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
-import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.AuthService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-import java.time.Instant;
-
-@Service
+@Slf4j
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
-    private final UserRepository userRepository;
-    private final UserStatusRepository userStatusRepository;
-    private final UserResponseMapper userResponseMapper;
 
-    @Override
-    @Transactional
-    public UserResponseDto login(LoginRequestDto loginRequestDto) {
-        User targetUser = userRepository.findByUsername(loginRequestDto.username())
-                .orElseThrow(() -> new UserNotFoundException(loginRequestDto.username()));
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
-        if(!targetUser.getPassword().equals(loginRequestDto.password())){
-            throw new WrongPasswordException(targetUser.getUsername());
-        }
+  @Transactional(readOnly = true)
+  @Override
+  public UserDto login(LoginRequest loginRequest) {
+    log.debug("로그인 시도: username={}", loginRequest.username());
+    
+    String username = loginRequest.username();
+    String password = loginRequest.password();
 
-        UserStatus userStatus = userStatusRepository.findByUserId(targetUser.getId())
-                .get();
-        userStatus.setLastActiveAt(Instant.now());
-        userStatusRepository.save(userStatus);
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> UserNotFoundException.withUsername(username));
 
-        return userResponseMapper.toDto(targetUser);
+    if (!user.getPassword().equals(password)) {
+      throw InvalidCredentialsException.wrongPassword();
     }
+
+    log.info("로그인 성공: userId={}, username={}", user.getId(), username);
+    return userMapper.toDto(user);
+  }
 }

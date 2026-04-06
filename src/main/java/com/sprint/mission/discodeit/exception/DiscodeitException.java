@@ -1,9 +1,10 @@
 package com.sprint.mission.discodeit.exception;
 
-import lombok.Getter;
-
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
+
+import lombok.Getter;
 
 @Getter
 public class DiscodeitException extends RuntimeException {
@@ -15,27 +16,17 @@ public class DiscodeitException extends RuntimeException {
         super(errorCode.getMessage());
         this.timestamp = Instant.now();
         this.errorCode = errorCode;
-        this.details = null;
+        this.details = new HashMap<>();
     }
 
-    public DiscodeitException(ErrorCode errorCode, Map<String, Object> details) {
-        super(errorCode.getMessage());
+    public DiscodeitException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode.getMessage(), cause);
         this.timestamp = Instant.now();
         this.errorCode = errorCode;
-        this.details = details;
+        this.details = new HashMap<>();
     }
 
-    public DiscodeitException(ErrorCode errorCode, String message) {
-        super(message);
-        this.timestamp = Instant.now();
-        this.errorCode = errorCode;
-        this.details = null;
+    public void addDetail(String key, Object value) {
+        this.details.put(key, value);
     }
-
-    public DiscodeitException(ErrorCode errorCode, String message, Map<String, Object> details) {
-        super(message);
-        this.timestamp = Instant.now();
-        this.errorCode = errorCode;
-        this.details = details;
-    }
-}
+} 

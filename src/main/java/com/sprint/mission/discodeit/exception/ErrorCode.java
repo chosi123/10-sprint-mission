@@ -4,23 +4,36 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-    USER_NOT_FOUND("해당 사용자를 찾을 수 없습니다."),
-    WRONG_PASSWORD("잘못된 비밀번호입니다."),
+    // User 관련 에러 코드
+    USER_NOT_FOUND("사용자를 찾을 수 없습니다."),
+    DUPLICATE_USER("이미 존재하는 사용자입니다."),
+    INVALID_USER_CREDENTIALS("잘못된 사용자 인증 정보입니다."),
+    
+    // Channel 관련 에러 코드
     CHANNEL_NOT_FOUND("채널을 찾을 수 없습니다."),
-    CHANNEL_NOT_PUBLIC("공개된 채널의 정보만을 수정할 수 있습니다."),
-    USERNAME_ALREADY_EXISTS("이미 존재하는 사용자 이름입니다."),
-    EMAIL_ALREADY_EXISTS("이미 존재하는 이메일입니다."),
-    PROFILE_SHOULD_IMAGE("이미지 파일이 아닌 파일은 프로필 이미지로 사용할 수 없습니다."),
-    MESSAGE_NOT_FOUND("해당 메시지를 찾을 수 없습니다."),
-    FILE_STORAGE_FAILED("파일 저장 중 오류가 발생했습니다."),
-    FILE_NOT_FOUND("파일을 찾을 수 없습니다."),
-    READ_STATUS_NOT_FOUND("연결된 Readstatus 객체를 찾을 수 없습니다."),
-    DOWNLOAD_FAILED("파일 다운로드에 실패했습니다."),
-    NOT_VALID("유효성 검증에 실패하였습니다.");
+    PRIVATE_CHANNEL_UPDATE("비공개 채널은 수정할 수 없습니다."),
+    
+    // Message 관련 에러 코드
+    MESSAGE_NOT_FOUND("메시지를 찾을 수 없습니다."),
+    
+    // BinaryContent 관련 에러 코드
+    BINARY_CONTENT_NOT_FOUND("바이너리 컨텐츠를 찾을 수 없습니다."),
+    
+    // ReadStatus 관련 에러 코드
+    READ_STATUS_NOT_FOUND("읽음 상태를 찾을 수 없습니다."),
+    DUPLICATE_READ_STATUS("이미 존재하는 읽음 상태입니다."),
+    
+    // UserStatus 관련 에러 코드
+    USER_STATUS_NOT_FOUND("사용자 상태를 찾을 수 없습니다."),
+    DUPLICATE_USER_STATUS("이미 존재하는 사용자 상태입니다."),
+    
+    // Server 에러 코드
+    INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다."),
+    INVALID_REQUEST("잘못된 요청입니다.");
 
     private final String message;
 
     ErrorCode(String message) {
         this.message = message;
     }
-}
+} 
