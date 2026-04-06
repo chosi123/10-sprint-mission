@@ -58,6 +58,7 @@ public class BasicUserService implements UserService {
 
             BinaryContent profileImage = new BinaryContent(profileImageFile.getContentType(), profileImageFile.getOriginalFilename(), profileImageFile.getSize());
             binaryContentRepository.save(profileImage);
+            binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
 
             try{
                 binaryContentStorage.put(profileImage.getId(), profileImageFile.getBytes());
