@@ -9,7 +9,7 @@ public interface BinaryContentStorage {
 
   UUID put(UUID binaryContentId, byte[] bytes, String fileName, String contentType);
 
-  InputStream get(UUID binaryContentId);
+  InputStream get(UUID binaryContentId, String fileName);
 
   ResponseEntity<?> download(BinaryContentDto metaData);
 }

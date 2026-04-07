@@ -56,7 +56,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
     return binaryContentId;
   }
 
-  public InputStream get(UUID binaryContentId) {
+  public InputStream get(UUID binaryContentId, String fileName) {
     Path filePath = resolvePath(binaryContentId);
     if (Files.notExists(filePath)) {
       throw new NoSuchElementException("File with key " + binaryContentId + " does not exist");
@@ -75,7 +75,7 @@ public class LocalBinaryContentStorage implements BinaryContentStorage {
 
   @Override
   public ResponseEntity<Resource> download(BinaryContentDto metaData) {
-    InputStream inputStream = get(metaData.id());
+    InputStream inputStream = get(metaData.id(), metaData.fileName());
     Resource resource = new InputStreamResource(inputStream);
 
     return ResponseEntity

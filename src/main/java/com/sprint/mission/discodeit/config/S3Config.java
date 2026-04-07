@@ -7,6 +7,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
 public class S3Config {
@@ -16,14 +17,14 @@ public class S3Config {
     @Bean
     public S3Client s3Client() {
         // .env에서 키가 주입된 경우: 정적 자격 증명 사용
-        if (props.getCredentials().getAccessKey() != null && !props.getCredentials().getAccessKey().isBlank()) {
+        if (props.getAccessKey() != null && !props.getAccessKey().isBlank()) {
             return S3Client.builder()
                     .region(Region.of(props.getRegion()))
                     .credentialsProvider(
                             StaticCredentialsProvider.create(
                                     AwsBasicCredentials.create(
-                                            props.getCredentials().getAccessKey(),
-                                            props.getCredentials().getSecretKey()
+                                            props.getAccessKey(),
+                                            props.getSecretKey()
                                     )
                             )
                     )
@@ -31,6 +32,26 @@ public class S3Config {
         }
         // 그렇지 않으면: 기본 체인(환경변수, 프로파일, IAM Role)을 자동 탐색
         return S3Client.builder()
+                .region(Region.of(props.getRegion()))
+                .credentialsProvider(DefaultCredentialsProvider.create())
+                .build();
+    }
+
+    @Bean
+    public S3Presigner s3Presigner() {
+        if(props.getAccessKey() != null && !props.getAccessKey().isBlank()) {
+            return S3Presigner.builder()
+                    .region(Region.of(props.getRegion()))
+                    .credentialsProvider(
+                            StaticCredentialsProvider.create(
+                                    AwsBasicCredentials.create(
+                                            props.getAccessKey(),
+                                            props.getSecretKey()
+                                    )
+                            )
+                    ).build();
+        }
+        return S3Presigner.builder()
                 .region(Region.of(props.getRegion()))
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
