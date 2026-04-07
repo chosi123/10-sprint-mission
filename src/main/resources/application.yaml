@@ -50,11 +50,11 @@ discodeit:
     local:
       root-path: ${STORAGE_LOCAL_ROOT_PATH:.discodeit/storage}
     s3:
-      bucket-name: ${STORAGE_S3_BUCKET_NAME}
-      access-key: ${STORAGE_S3_ACCESS_KEY}
-      secret-key: ${STORAGE_S3_SECRET_KEY}
-      region: ${STORAGE_S3_REGION}
-      presigned-url-expiration: ${AWS_S3_PRESIGNED_URL_EXPIRATION:600}
+      bucket: ${AWS_S3_BUCKET}
+      access-key: ${AWS_CREDENTIALS_ACCESS_KEY}
+      secret-key: ${AWS_CREDENTIALS_SECRET_KEY}
+      region: ${AWS_S3_REGION}
+      presigned-url-expiration: 600
 
 logging:
   level:
