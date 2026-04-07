@@ -59,7 +59,7 @@ public class BasicUserService implements UserService {
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          binaryContentStorage.put(binaryContent.getId(), bytes, binaryContent.getFileName(), binaryContent.getContentType());
           return binaryContent;
         })
         .orElse(null);
@@ -127,7 +127,7 @@ public class BasicUserService implements UserService {
           BinaryContent binaryContent = new BinaryContent(fileName, (long) bytes.length,
               contentType);
           binaryContentRepository.save(binaryContent);
-          binaryContentStorage.put(binaryContent.getId(), bytes);
+          binaryContentStorage.put(binaryContent.getId(), bytes, binaryContent.getFileName(), binaryContent.getContentType());
           return binaryContent;
         })
         .orElse(null);
