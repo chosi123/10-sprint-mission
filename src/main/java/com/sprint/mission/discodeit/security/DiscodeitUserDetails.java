@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @RequiredArgsConstructor
+@Getter
 public class DiscodeitUserDetails implements UserDetails {
   private final UserDto userDto;
   private final String password;
