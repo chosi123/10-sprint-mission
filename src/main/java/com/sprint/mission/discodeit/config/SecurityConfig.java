@@ -49,6 +49,17 @@ public class SecurityConfig {
             .logoutSuccessHandler(httpStatusReturningLogoutSuccessHandler)
         )
         .authorizeHttpRequests(auth -> auth
+
+            // 시작 화면
+            .requestMatchers(
+                "/",
+                "/index.html",
+                "/assets/**",
+                "/*.js",
+                "/*.css",
+                "/favicon.ico"
+            ).permitAll()
+
             // CSRF Token 발급
             .requestMatchers("/api/auth/csrf-token").permitAll()
 
