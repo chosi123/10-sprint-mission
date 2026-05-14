@@ -6,6 +6,8 @@ import com.sprint.mission.discodeit.security.LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +16,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
   private final LoginSuccessHandler loginSuccessHandler;
@@ -36,6 +39,44 @@ public class SecurityConfig {
         .logout(logout -> logout
             .logoutUrl("/api/auth/logout")
             .logoutSuccessHandler(httpStatusReturningLogoutSuccessHandler)
+        )
+        .authorizeHttpRequests(auth -> auth
+            // CSRF Token 발급
+            .requestMatchers("/api/auth/csrf-token").permitAll()
+
+            // 회원가입
+            .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+
+            // 로그인
+            .requestMatchers("/api/auth/login").permitAll()
+
+            // 로그아웃
+            .requestMatchers("/api/auth/logout").permitAll()
+
+            // Swagger
+            .requestMatchers(
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/swagger-resources/**",
+                "/webjars/**"
+            ).permitAll()
+
+            .requestMatchers(
+                "/css/**",
+                "/js/**",
+                "/images/**"
+            ).permitAll()
+
+            // Actuator
+            .requestMatchers("/actuator/**").permitAll()
+
+            // API가 아닌 요청 허용
+            .requestMatchers(
+                "/",
+                "/error",
+                "/favicon.ico"
+            ).permitAll()
+            .anyRequest().authenticated()
         );
 
 
