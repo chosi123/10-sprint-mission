@@ -15,6 +15,10 @@ public class SecurityConfig {
         .csrf(csrf -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler())
+
+        )
+        .formLogin(login -> login
+            .loginProcessingUrl("/api/auth/login")
         );
 
 
