@@ -1,5 +1,7 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.security.CustomAccessDeniedHandler;
+import com.sprint.mission.discodeit.security.CustomAuthenticationEntryPoint;
 import com.sprint.mission.discodeit.security.HttpStatusReturningLogoutSuccessHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.LoginSuccessHandler;
@@ -22,6 +24,8 @@ public class SecurityConfig {
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
   private final HttpStatusReturningLogoutSuccessHandler httpStatusReturningLogoutSuccessHandler;
+  private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+  private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -77,7 +81,11 @@ public class SecurityConfig {
                 "/favicon.ico"
             ).permitAll()
             .anyRequest().authenticated()
-        );
+        )
+        .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(customAuthenticationEntryPoint)
+            .accessDeniedHandler(customAccessDeniedHandler)
+  );
 
 
     return http.build();
