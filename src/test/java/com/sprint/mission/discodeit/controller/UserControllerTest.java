@@ -20,9 +20,9 @@ import com.sprint.mission.discodeit.dto.data.UserStatusDto;
 import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.UserStatusService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -87,6 +87,7 @@ class UserControllerTest {
         userId,
         "testuser",
         "test@example.com",
+        Role.USER,
         profileDto,
         false
     );
@@ -142,6 +143,7 @@ class UserControllerTest {
         userId1,
         "user1",
         "user1@example.com",
+        Role.USER,
         null,
         true
     );
@@ -150,6 +152,7 @@ class UserControllerTest {
         userId2,
         "user2",
         "user2@example.com",
+        Role.USER,
         null,
         false
     );
@@ -206,6 +209,7 @@ class UserControllerTest {
         userId,
         "updateduser",
         "updated@example.com",
+        Role.USER,
         profileDto,
         true
     );
