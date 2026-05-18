@@ -155,7 +155,7 @@ public class BasicUserService implements UserService {
 
   @Override
   @PreAuthorize("hasRole('ADMIN')")
-  @Transactional(readOnly = true)
+  @Transactional
   public UserDto updateRole(UserRoleUpdateRequest request){
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
