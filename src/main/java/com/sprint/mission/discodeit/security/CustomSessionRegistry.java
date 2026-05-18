@@ -1,7 +1,9 @@
 package com.sprint.mission.discodeit.security;
 
+import com.sprint.mission.discodeit.entity.User;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +24,7 @@ public class CustomSessionRegistry extends SessionRegistryImpl {
   @Override
   public void registerNewSession(String sessionId, Object principal) {
 
+    super.registerNewSession(sessionId, principal);
     DiscodeitUserDetails user =
         (DiscodeitUserDetails) principal;
 
@@ -42,6 +45,8 @@ public class CustomSessionRegistry extends SessionRegistryImpl {
 
   @Override
   public void removeSessionInformation(String sessionId) {
+
+    super.removeSessionInformation(sessionId);
 
     SessionInformation information =
         sessions.remove(sessionId);
@@ -64,5 +69,16 @@ public class CustomSessionRegistry extends SessionRegistryImpl {
         userSessions.remove(userId);
       }
     }
+  }
+
+  public boolean isOnline(UUID userId) {
+
+    Set<String> sessionIds =
+        userSessions.getOrDefault(userId, Set.of());
+
+    return sessionIds.stream()
+        .map(sessions::get)
+        .filter(Objects::nonNull)
+        .anyMatch(session -> !session.isExpired());
   }
 }
