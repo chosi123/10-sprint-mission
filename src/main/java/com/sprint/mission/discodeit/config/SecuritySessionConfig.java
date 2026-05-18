@@ -1,5 +1,6 @@
 package com.sprint.mission.discodeit.config;
 
+import com.sprint.mission.discodeit.security.CustomSessionRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.session.SessionRegistry;
@@ -10,6 +11,6 @@ public class SecuritySessionConfig {
 
   @Bean
   public SessionRegistry sessionRegistry() {
-    return new SessionRegistryImpl();
+    return new CustomSessionRegistry();
   }
 }
