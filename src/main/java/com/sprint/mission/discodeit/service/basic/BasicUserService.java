@@ -12,6 +12,8 @@ import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.security.CustomSessionRegistry;
+import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,7 @@ public class BasicUserService implements UserService {
   private final BinaryContentRepository binaryContentRepository;
   private final BinaryContentStorage binaryContentStorage;
   private final PasswordEncoder passwordEncoder;
+  private final CustomSessionRegistry sessionRegistry;
 
   @Transactional
   @Override
@@ -164,6 +168,29 @@ public class BasicUserService implements UserService {
 
     userRepository.save(user);
 
+    expireUserSessions(user.getId());
+
     return userMapper.toDto(user);
+  }
+
+  private void expireUserSessions(UUID userId) {
+
+    for (Object principal : sessionRegistry.getAllPrincipals()) {
+
+      if (!(principal instanceof DiscodeitUserDetails userDetails)) {
+        continue;
+      }
+
+      if (!userDetails.getId().equals(userId)) {
+        continue;
+      }
+
+      List<SessionInformation> sessions =
+          sessionRegistry.getAllSessions(principal, false);
+
+      for (SessionInformation session : sessions) {
+        session.expireNow();
+      }
+    }
   }
 }
