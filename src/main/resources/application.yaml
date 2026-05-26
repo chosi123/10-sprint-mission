@@ -59,3 +59,8 @@ discodeit:
 logging:
   level:
     root: info
+
+jwt:
+  secret: your-super-secret-key-your-super-secret-key
+  access-token-expiration: 1800 # seconds
+  refresh-token-expiration: 1209600 # seconds
