@@ -4,6 +4,8 @@ import com.sprint.mission.discodeit.entity.base.BaseEntity;
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,6 +24,7 @@ public class BinaryContent extends BaseUpdatableEntity {
   @Column(length = 100, nullable = false)
   private String contentType;
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private BinaryContentStatus status;
 
   public BinaryContent(String fileName, Long size, String contentType) {
