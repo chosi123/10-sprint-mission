@@ -32,11 +32,13 @@ public class ReadStatus extends BaseUpdatableEntity {
   private Channel channel;
   @Column(columnDefinition = "timestamp with time zone", nullable = false)
   private Instant lastReadAt;
+  private boolean notificationEnabled;
 
   public ReadStatus(User user, Channel channel, Instant lastReadAt) {
     this.user = user;
     this.channel = channel;
     this.lastReadAt = lastReadAt;
+    this.notificationEnabled = channel.getType() != ChannelType.PUBLIC;
   }
 
   public void update(Instant newLastReadAt) {
