@@ -13,5 +13,5 @@ import org.springframework.security.web.csrf.CsrfToken;
 public interface AuthApi {
   ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken);
   ResponseEntity<UserDto> updateUserRole(UserRoleUpdateRequest request);
-  JwtDto refresh(String refreshToken, HttpServletResponse response);
+  ResponseEntity<JwtDto> refresh(String refreshToken, HttpServletResponse response);
 } 

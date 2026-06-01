@@ -44,79 +44,36 @@ public class AuthController implements AuthApi {
   private final UserService userService;
 
   @Override
-  @GetMapping("/csrf-token")
-  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
-    String tokenValue = csrfToken.getToken();
-    log.debug("CSRF 토큰 요청: {}", tokenValue);
-    return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
-        .build();
-  }
-
-  @Override
   @PutMapping("/role")
   public ResponseEntity<UserDto> updateUserRole(@RequestBody UserRoleUpdateRequest request) {
     return ResponseEntity.ok(userService.updateRole(request));
   }
 
-  @Override
-  @PostMapping("/refresh")
-  @ResponseStatus(HttpStatus.OK)
-  public JwtDto refresh(
-      @CookieValue(name = REFRESH_TOKEN_COOKIE_NAME)
-      String refreshToken,
-
-      HttpServletResponse response
-  ) {
-
-    if (!jwtTokenProvider.validateToken(refreshToken)) {
-      throw new InvalidRefreshTokenException(ErrorCode.INVALID_REFRESH_TOKEN);
-    }
-
-    UUID userId =
-        jwtTokenProvider.getUserId(refreshToken);
-
-    DiscodeitUserDetails userDetails =
-        (DiscodeitUserDetails)
-            userDetailsService.loadUserById(userId);
-
-    UsernamePasswordAuthenticationToken authentication =
-        new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities()
-        );
-
-    String newAccessToken =
-        jwtTokenProvider.generateAccessToken(authentication);
-
-    String newRefreshToken =
-        jwtTokenProvider.generateRefreshToken(authentication);
-
-    Cookie cookie =
-        createRefreshTokenCookie(newRefreshToken);
-
-    response.addCookie(cookie);
-
-    UserDto userDto = userDetails.getUserDto();
-
-    return new JwtDto(
-        userDto,
-        newAccessToken
-    );
+  @GetMapping("csrf-token")
+  public ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken) {
+    log.debug("CSRF 토큰 요청");
+    log.trace("CSRF 토큰: {}", csrfToken.getToken());
+    return ResponseEntity
+        .status(HttpStatus.NO_CONTENT)
+        .build();
   }
 
-  private Cookie createRefreshTokenCookie(String refreshToken) {
+  @PostMapping("refresh")
+  public ResponseEntity<JwtDto> refresh(@CookieValue("REFRESH_TOKEN") String refreshToken,
+      HttpServletResponse response) {
+    log.info("토큰 리프레시 요청");
+    JwtInformation jwtInformation = authService.refreshToken(refreshToken);
+    Cookie refreshCookie = jwtTokenProvider.genereateRefreshTokenCookie(
+        jwtInformation.getRefreshToken());
+    response.addCookie(refreshCookie);
 
-    Cookie cookie = new Cookie(
-        REFRESH_TOKEN_COOKIE_NAME,
-        refreshToken
+    JwtDto body = new JwtDto(
+        jwtInformation.getUserDto(),
+        jwtInformation.getAccessToken()
     );
-
-    cookie.setHttpOnly(true);
-    cookie.setSecure(false);
-    cookie.setPath("/");
-    cookie.setMaxAge(60 * 60 * 24 * 14);
-
-    return cookie;
+    return ResponseEntity
+        .status(HttpStatus.OK)
+        .body(body);
   }
+
 }
