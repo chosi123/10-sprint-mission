@@ -119,11 +119,4 @@ public class AuthController implements AuthApi {
 
     return cookie;
   }
-
-  @Override
-  @GetMapping("/me")
-  public ResponseEntity<UserDto> getUserWithSessionId(
-      @AuthenticationPrincipal DiscodeitUserDetails details) {
-    return ResponseEntity.ok(details.getUserDto());
-  }
 }

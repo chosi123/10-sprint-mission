@@ -11,7 +11,6 @@ import org.springframework.security.web.csrf.CsrfToken;
 
 @Tag(name = "Auth", description = "인증 API")
 public interface AuthApi {
-  ResponseEntity<UserDto> getUserWithSessionId(DiscodeitUserDetails details);
   ResponseEntity<Void> getCsrfToken(CsrfToken csrfToken);
   ResponseEntity<UserDto> updateUserRole(UserRoleUpdateRequest request);
   JwtDto refresh(String refreshToken, HttpServletResponse response);
