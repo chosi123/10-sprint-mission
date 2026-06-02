@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.service.NotificationService;
 import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -25,6 +26,7 @@ public class NotificationRequiredEventListener {
   @TransactionalEventListener(
       phase = TransactionPhase.AFTER_COMMIT
   )
+  @Async("eventExecutor")
   public void on(MessageCreatedEvent event) {
     notificationService.createMessageNotifications(
         event.channelId(),
@@ -36,6 +38,7 @@ public class NotificationRequiredEventListener {
   @TransactionalEventListener(
       phase = TransactionPhase.AFTER_COMMIT
   )
+  @Async("eventExecutor")
   public void on(RoleUpdatedEvent event) {
     notificationService.createRoleNotification(event.userId(), event.beforeRole(), event.afterRole());
   }

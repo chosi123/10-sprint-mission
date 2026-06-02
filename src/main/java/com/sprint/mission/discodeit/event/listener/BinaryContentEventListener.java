@@ -5,6 +5,7 @@ import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.service.BinaryContentService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -19,6 +20,7 @@ public class BinaryContentEventListener {
   @TransactionalEventListener(
       phase = TransactionPhase.AFTER_COMMIT
   )
+  @Async("eventExecutor")
   public void handleBinaryContentCreated(BinaryContentCreatedEvent event) {
     try{
       binaryContentStorage.put(event.binaryContentId(), event.bytes(), event.fileName(), event.contentType());
