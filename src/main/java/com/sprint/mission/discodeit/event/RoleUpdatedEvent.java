@@ -2,9 +2,8 @@ package com.sprint.mission.discodeit.event;
 
 import java.util.UUID;
 
-public record MessageCreatedEvent(
+public record RoleUpdatedEvent(
     UUID id
 ) {
-
 
 }

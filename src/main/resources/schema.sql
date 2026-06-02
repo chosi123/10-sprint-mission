@@ -24,6 +24,16 @@ CREATE TABLE binary_contents
     status       varchar(16)              NOT NULL
 );
 
+-- Notification
+CREATE TABLE notification
+(
+    id           uuid PRIMARY KEY,
+    created_at   timestamp with time zone NOT NULL,
+    title        varchar(100) NOT NULL,
+    content      text NOT NULL,
+    receiver_id  uuid NOT NULL
+);
+
 -- Channel
 CREATE TABLE channels
 (
