@@ -11,16 +11,19 @@ import com.sprint.mission.discodeit.service.ReadStatusService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
 public class NotificationRequiredEventListener {
 
-  private ReadStatusRepository readStatusRepository;
-  private NotificationRepository notificationrepository;
+  private final ReadStatusRepository readStatusRepository;
+  private final NotificationRepository notificationrepository;
 
-  @TransactionalEventListener
+  @TransactionalEventListener(
+      phase = TransactionPhase.AFTER_COMMIT
+  )
   public void on(MessageCreatedEvent event) {
     List<ReadStatus> list = readStatusRepository.findAllByChannelIdAndUserIdNotAndNotificationEnabled(event.channelId(), event.senderId(), true);
 
@@ -35,7 +38,9 @@ public class NotificationRequiredEventListener {
     );
   }
 
-  @TransactionalEventListener
+  @TransactionalEventListener(
+      phase = TransactionPhase.AFTER_COMMIT
+  )
   public void on(RoleUpdatedEvent event) {
     notificationrepository.save(
         new Notification(
