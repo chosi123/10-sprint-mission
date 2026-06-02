@@ -6,6 +6,7 @@ import com.sprint.mission.discodeit.dto.request.UserCreateRequest;
 import com.sprint.mission.discodeit.dto.request.UserRoleUpdateRequest;
 import com.sprint.mission.discodeit.dto.request.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
+import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
@@ -166,13 +167,15 @@ public class BasicUserService implements UserService {
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
 
+    Role beforeRole = user.getRole();
+
     user.updateRole(request.newRole());
 
     userRepository.save(user);
 
     expireUserSessions(user.getId());
 
-    applicationEventPublisher.publishEvent(new RoleUpdatedEvent(request.userId()));
+    applicationEventPublisher.publishEvent(new RoleUpdatedEvent(request.userId(), beforeRole, request.newRole()));
 
     return userMapper.toDto(user);
   }

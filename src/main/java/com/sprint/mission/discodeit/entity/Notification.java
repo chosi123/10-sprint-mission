@@ -24,5 +24,11 @@ public class Notification extends BaseEntity {
   @Column(nullable = false)
   private UUID receiverId;
 
+  public Notification(String title, String content, UUID receiverId) {
+    this.title = title;
+    this.content = content;
+    this.receiverId = receiverId;
+  }
+
 
 }

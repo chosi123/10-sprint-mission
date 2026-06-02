@@ -3,7 +3,10 @@ package com.sprint.mission.discodeit.event;
 import java.util.UUID;
 
 public record MessageCreatedEvent(
-    UUID id
+    UUID senderId,
+    UUID channelId,
+    String content
+
 ) {
 
 
