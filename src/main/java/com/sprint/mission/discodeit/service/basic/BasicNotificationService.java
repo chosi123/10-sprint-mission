@@ -12,12 +12,10 @@ import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
-import com.sprint.mission.discodeit.service.UserService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,5 +84,22 @@ public class BasicNotificationService implements NotificationService {
   public boolean isOwner(UUID notificationId, UUID receiverId) {
     Notification n = notificationRepository.findById(notificationId).orElseThrow(NotificationNotFoundException::new);
     return n.getReceiverId().equals(receiverId);
+  }
+
+  @Override
+  public void s3UploadFailedNotification(String requestId, UUID binaryContentId, String error){
+    userRepository.findAllByRole(Role.ADMIN).forEach(user -> {
+      notificationRepository.save(
+          new Notification(
+              "S3 파일 업로드 실패",
+              """
+                  RequestId: %s
+                  BinaryContentId: %s
+                  Error: %s
+                  """.formatted(requestId, binaryContentId, error),
+              user.getId()
+          )
+      );
+    });
   }
 }

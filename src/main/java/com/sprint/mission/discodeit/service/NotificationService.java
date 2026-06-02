@@ -15,4 +15,6 @@ public interface NotificationService {
 
   void createRoleNotification(UUID userId, Role beforeRole, Role afterRole);
 
+  void s3UploadFailedNotification(String requestId, UUID binaryContentId, String error);
+
 }
