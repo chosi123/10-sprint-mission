@@ -43,6 +43,6 @@ public class BasicNotificationService implements NotificationService {
 
   public boolean isOwner(UUID notificationId, UUID receiverId) {
     Notification n = notificationRepository.findById(notificationId).orElseThrow(NotificationNotFoundException::new);
-    return n.getReceiverId() == receiverId;
+    return n.getReceiverId().equals(receiverId);
   }
 }
