@@ -20,21 +20,16 @@ public class NotificationRequiredEventListener {
 
   private final ReadStatusRepository readStatusRepository;
   private final NotificationRepository notificationrepository;
+  private final NotificationService notificationService;
 
   @TransactionalEventListener(
       phase = TransactionPhase.AFTER_COMMIT
   )
   public void on(MessageCreatedEvent event) {
-    List<ReadStatus> list = readStatusRepository.findAllByChannelIdAndUserIdNotAndNotificationEnabled(event.channelId(), event.senderId(), true);
-
-    list.forEach(
-        readStatus ->
-          notificationrepository.save(new Notification(
-              readStatus.getUser().getUsername() + " (#" + readStatus.getChannel().getName() + ")",
-              event.content(),
-              readStatus.getUser().getId()
-              )
-          )
+    notificationService.createMessageNotifications(
+        event.channelId(),
+        event.senderId(),
+        event.content()
     );
   }
 
@@ -42,13 +37,7 @@ public class NotificationRequiredEventListener {
       phase = TransactionPhase.AFTER_COMMIT
   )
   public void on(RoleUpdatedEvent event) {
-    notificationrepository.save(
-        new Notification(
-            "권한이 변경되었습니다.",
-            event.beforeRole() + " -> " + event.afterRole(),
-            event.userId()
-        )
-    );
+    notificationService.createRoleNotification(event.userId(), event.beforeRole(), event.afterRole());
   }
 
 }
