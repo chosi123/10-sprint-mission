@@ -85,6 +85,10 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Cacheable(
+      value = "user",
+      key = "#userId"
+  )
   public UserDto find(UUID userId) {
     log.debug("사용자 조회 시작: id={}", userId);
     UserDto userDto = userRepository.findById(userId)
@@ -109,9 +113,9 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   @PreAuthorize("hasRole('ADMIN') or #userId == principal.id")
-  @CachePut(
+  @CacheEvict(
       value = "users",
-      key = "#user.id"
+      allEntries = true
   )
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
@@ -160,8 +164,7 @@ public class BasicUserService implements UserService {
   @PreAuthorize("hasRole('ADMIN') or #userId == principal.id")
   @CacheEvict(
       value = "users",
-      key = "#userId",
-      beforeInvocation = true
+      allEntries = true
   )
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
@@ -177,9 +180,9 @@ public class BasicUserService implements UserService {
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
-  @CachePut(
+  @CacheEvict(
       value = "users",
-      key = "#user.id"
+      allEntries = true
   )
   public UserDto updateRole(UserRoleUpdateRequest request){
     User user = userRepository.findById(request.userId())
