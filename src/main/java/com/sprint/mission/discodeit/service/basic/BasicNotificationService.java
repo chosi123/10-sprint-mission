@@ -15,6 +15,7 @@ import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,6 +32,10 @@ public class BasicNotificationService implements NotificationService {
 
   @Override
   @Transactional(readOnly = true)
+  @Cacheable(
+      value = "userNotifications",
+      key = "#receiverId"
+  )
   public List<NotificationDto> findAllNotification(UUID receiverId) {
     List<Notification> notifications = notificationRepository.findByReceiverId(receiverId)
         .orElse(List.of());

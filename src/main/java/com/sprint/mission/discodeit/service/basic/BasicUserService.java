@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.session.SessionInformation;
@@ -91,6 +92,7 @@ public class BasicUserService implements UserService {
   }
 
   @Override
+  @Cacheable("users")
   public List<UserDto> findAll() {
     log.debug("모든 사용자 조회 시작");
     List<UserDto> userDtos = userRepository.findAllWithProfileAndStatus()
