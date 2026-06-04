@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,6 +48,7 @@ public class BasicUserService implements UserService {
 
   @Transactional
   @Override
+  @CacheEvict(value = "users", allEntries = true)
   public UserDto create(UserCreateRequest userCreateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("사용자 생성 시작: {}", userCreateRequest);
@@ -106,6 +109,10 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   @PreAuthorize("hasRole('ADMIN') or #userId == principal.id")
+  @CachePut(
+      value = "users",
+      key = "#user.id"
+  )
   public UserDto update(UUID userId, UserUpdateRequest userUpdateRequest,
       Optional<BinaryContentCreateRequest> optionalProfileCreateRequest) {
     log.debug("사용자 수정 시작: id={}, request={}", userId, userUpdateRequest);
@@ -151,6 +158,11 @@ public class BasicUserService implements UserService {
   @Transactional
   @Override
   @PreAuthorize("hasRole('ADMIN') or #userId == principal.id")
+  @CacheEvict(
+      value = "users",
+      key = "#userId",
+      beforeInvocation = true
+  )
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
     
@@ -165,6 +177,10 @@ public class BasicUserService implements UserService {
   @Override
   @PreAuthorize("hasRole('ADMIN')")
   @Transactional
+  @CachePut(
+      value = "users",
+      key = "#user.id"
+  )
   public UserDto updateRole(UserRoleUpdateRequest request){
     User user = userRepository.findById(request.userId())
         .orElseThrow(() -> UserNotFoundException.withId(request.userId()));
