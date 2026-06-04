@@ -15,6 +15,9 @@ import com.sprint.mission.discodeit.service.NotificationService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class BasicNotificationService implements NotificationService {
   private final NotificationMapper notificationMapper;
   private final ReadStatusRepository readStatusRepository;
   private final UserRepository userRepository;
+  private final CacheManager cacheManager;
 
   @Override
   @Transactional(readOnly = true)
@@ -48,6 +52,7 @@ public class BasicNotificationService implements NotificationService {
   @Override
   @Transactional
   @PreAuthorize("@basicNotificationService.isOwner(#notificationId, #authId)")
+  @CacheEvict(value = "userNotifications", key = "#authId")
   public void deleteNotification(UUID notificationId, UUID authId) {
     if (!notificationRepository.existsById(notificationId)) {
       throw new NotificationNotFoundException();
@@ -58,24 +63,36 @@ public class BasicNotificationService implements NotificationService {
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void createMessageNotifications(UUID channelId, UUID senderId, String content) {
+    Cache cache = cacheManager.getCache("userNotifications");
+
     List<ReadStatus> list = readStatusRepository.findAllByChannelIdAndUserIdNotAndNotificationEnabled(channelId, senderId, true);
 
     User sender = userRepository.findById(senderId)
             .orElseThrow(UserNotFoundException::new);
 
     list.forEach(
-        readStatus ->
-            notificationRepository.save(new Notification(
-                    sender.getUsername() + " (#" + readStatus.getChannel().getName() + ")",
-                    content,
-                    readStatus.getUser().getId()
-                )
-            )
+        readStatus -> {
+          notificationRepository.save(new Notification(
+                  sender.getUsername() + " (#" + readStatus.getChannel().getName() + ")",
+                  content,
+                  readStatus.getUser().getId()
+              )
+          );
+
+          if (cache != null) {
+            cache.evict(readStatus.getUser().getId());
+          }
+        }
+
     );
   }
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @CacheEvict(
+      value = "userNotifications",
+      key = "#userId"
+  )
   public void createRoleNotification(UUID userId, Role beforeRole, Role afterRole) {
     notificationRepository.save(
         new Notification(
@@ -105,6 +122,11 @@ public class BasicNotificationService implements NotificationService {
               user.getId()
           )
       );
+
+      Cache cache = cacheManager.getCache("userNotifications");
+      if (cache != null) {
+        cache.evict(user.getId());
+      }
     });
   }
 }
