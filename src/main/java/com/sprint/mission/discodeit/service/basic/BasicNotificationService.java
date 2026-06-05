@@ -1,6 +1,7 @@
 package com.sprint.mission.discodeit.service.basic;
 
 import com.sprint.mission.discodeit.dto.data.NotificationDto;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.Role;
@@ -73,7 +74,8 @@ public class BasicNotificationService implements NotificationService {
     list.forEach(
         readStatus -> {
           notificationRepository.save(new Notification(
-                  sender.getUsername() + " (#" + readStatus.getChannel().getName() + ")",
+                  sender.getUsername() + " (#" + (
+                      readStatus.getChannel().getType().equals(ChannelType.PUBLIC) ? readStatus.getChannel().getName() : "개인 메시지") + ")",
                   content,
                   readStatus.getUser().getId()
               )
