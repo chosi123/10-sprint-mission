@@ -44,6 +44,10 @@ public class NotificationRequiredEventListener {
     notificationService.createRoleNotification(event.userId(), event.beforeRole(), event.afterRole());
   }
 
+  @TransactionalEventListener(
+      phase = TransactionPhase.AFTER_COMMIT
+  )
+  @Async("eventExecutor")
   public void on(S3UploadFailedEvent event){
     notificationService.s3UploadFailedNotification(event.requestId(), event.binaryContentId(),
         event.errorMessage());
