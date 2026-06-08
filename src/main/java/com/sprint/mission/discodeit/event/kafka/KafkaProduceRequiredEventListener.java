@@ -36,7 +36,7 @@ public class KafkaProduceRequiredEventListener {
 
       log.info("Kafka 이벤트 발행 성공: MessageCreatedEvent");
 
-    }catch(JsonProcessingException e){
+    }catch(Exception e){
       log.error("Kafka 이벤트 발행 실패: MessageCreatedEvent");
     }
   }
