@@ -39,10 +39,11 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     private final ApplicationEventPublisher eventPublisher;
 
 
-    public S3BinaryContentStorage(S3Client s3Client, AwsProperties props, S3Presigner s3Presigner, NotificationService notificationService, UserRepository userRepository) {
+    public S3BinaryContentStorage(S3Client s3Client, AwsProperties props, S3Presigner s3Presigner, ApplicationEventPublisher eventPublisher) {
         this.s3Client = s3Client;
         this.props = props;
         this.s3Presigner = s3Presigner;
+        this.eventPublisher = eventPublisher;
     }
 
     private S3Client getS3Client(){
