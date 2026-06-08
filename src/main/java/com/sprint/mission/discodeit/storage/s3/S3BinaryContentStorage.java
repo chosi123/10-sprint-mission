@@ -2,12 +2,14 @@ package com.sprint.mission.discodeit.storage.s3;
 
 import com.sprint.mission.discodeit.config.AwsProperties;
 import com.sprint.mission.discodeit.dto.data.BinaryContentDto;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
@@ -34,15 +36,13 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
     private final S3Client s3Client;
     private final AwsProperties props;
     private final S3Presigner s3Presigner;
-    private final NotificationService notificationService;
-    private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     public S3BinaryContentStorage(S3Client s3Client, AwsProperties props, S3Presigner s3Presigner, NotificationService notificationService, UserRepository userRepository) {
         this.s3Client = s3Client;
         this.props = props;
         this.s3Presigner = s3Presigner;
-        this.notificationService = notificationService;
-        this.userRepository = userRepository;
     }
 
     private S3Client getS3Client(){
@@ -156,7 +156,8 @@ public class S3BinaryContentStorage implements BinaryContentStorage {
         );
 
         // 관리자 알림
-        notificationService.s3UploadFailedNotification(requestId, binaryContentId, e.getMessage());
+        //notificationService.s3UploadFailedNotification(requestId, binaryContentId, e.getMessage());
+        eventPublisher.publishEvent(new S3UploadFailedEvent(requestId, binaryContentId, e.getMessage()));
 
         throw new RuntimeException("S3 업로드 최종 실패", e);
     }

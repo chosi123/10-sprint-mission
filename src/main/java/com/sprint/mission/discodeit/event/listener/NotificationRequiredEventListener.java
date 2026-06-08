@@ -4,6 +4,7 @@ import com.sprint.mission.discodeit.entity.Notification;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.event.MessageCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.S3UploadFailedEvent;
 import com.sprint.mission.discodeit.repository.NotificationRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
 import com.sprint.mission.discodeit.service.NotificationService;
@@ -41,6 +42,11 @@ public class NotificationRequiredEventListener {
   @Async("eventExecutor")
   public void on(RoleUpdatedEvent event) {
     notificationService.createRoleNotification(event.userId(), event.beforeRole(), event.afterRole());
+  }
+
+  public void on(S3UploadFailedEvent event){
+    notificationService.s3UploadFailedNotification(event.requestId(), event.binaryContentId(),
+        event.errorMessage());
   }
 
 }
