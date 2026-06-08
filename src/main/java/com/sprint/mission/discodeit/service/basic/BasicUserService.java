@@ -17,6 +17,7 @@ import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.CustomSessionRegistry;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.util.List;
@@ -43,7 +44,7 @@ public class BasicUserService implements UserService {
   private final UserMapper userMapper;
   private final BinaryContentRepository binaryContentRepository;
   private final PasswordEncoder passwordEncoder;
-  private final CustomSessionRegistry sessionRegistry;
+  private final JwtRegistry jwtRegistry;
   private final ApplicationEventPublisher applicationEventPublisher;
 
   @Transactional
@@ -194,31 +195,10 @@ public class BasicUserService implements UserService {
 
     userRepository.save(user);
 
-    expireUserSessions(user.getId());
+    jwtRegistry.invalidateJwtInformationByUserId(user.getId());
 
     applicationEventPublisher.publishEvent(new RoleUpdatedEvent(request.userId(), beforeRole, request.newRole()));
 
     return userMapper.toDto(user);
-  }
-
-  private void expireUserSessions(UUID userId) {
-
-    for (Object principal : sessionRegistry.getAllPrincipals()) {
-
-      if (!(principal instanceof DiscodeitUserDetails userDetails)) {
-        continue;
-      }
-
-      if (!userDetails.getId().equals(userId)) {
-        continue;
-      }
-
-      List<SessionInformation> sessions =
-          sessionRegistry.getAllSessions(principal, false);
-
-      for (SessionInformation session : sessions) {
-        session.expireNow();
-      }
-    }
   }
 }
