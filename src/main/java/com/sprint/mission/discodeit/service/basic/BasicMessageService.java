@@ -24,6 +24,7 @@ import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.storage.BinaryContentStorage;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,7 +65,10 @@ public class BasicMessageService implements MessageService {
     User author = userRepository.findById(authorId)
         .orElseThrow(() -> UserNotFoundException.withId(authorId));
 
-    List<BinaryContent> attachments = binaryContentCreateRequests.stream()
+    List<BinaryContentCreateRequest> attachmentRequests =
+        Optional.ofNullable(binaryContentCreateRequests).orElse(Collections.emptyList());
+
+    List<BinaryContent> attachments = attachmentRequests.stream()
         .map(attachmentRequest -> {
           String fileName = attachmentRequest.fileName();
           String contentType = attachmentRequest.contentType();
@@ -90,7 +94,14 @@ public class BasicMessageService implements MessageService {
 
     messageRepository.save(message);
     log.info("메시지 생성 완료: id={}, channelId={}", message.getId(), channelId);
-    applicationEventPublisher.publishEvent(new MessageCreatedEvent(message.getAuthor().getId(), message.getChannel().getId(), message.getContent()));
+    applicationEventPublisher.publishEvent(
+        new MessageCreatedEvent(
+            message.getId(),
+            message.getAuthor().getId(),
+            message.getChannel().getId(),
+            message.getContent()
+        )
+    );
     return messageMapper.toDto(message);
   }
 
