@@ -11,7 +11,7 @@ jacoco {
 
 
 group = 'com.sprint.mission'
-version = '1.2-M8'
+version = '3.0-M12'
 
 java {
     toolchain {
