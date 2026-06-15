@@ -5,7 +5,10 @@ import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
+import com.sprint.mission.discodeit.service.SseService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +29,9 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final ObjectMapper objectMapper;
   private final JwtTokenProvider tokenProvider;
   private final JwtRegistry jwtRegistry;
+  private final SseService sseService;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request,
@@ -59,6 +65,11 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
                 refreshToken
             )
         );
+
+        // 로그인 후 online 상태가 반영된 UserDto를 SSE로 브로드캐스트
+        userRepository.findById(userDetails.getId())
+            .map(userMapper::toDto)
+            .ifPresent(dto -> sseService.broadcast("users.updated", dto));
 
         log.info("JWT access and refresh tokens issued for user: {}", userDetails.getUsername());
 

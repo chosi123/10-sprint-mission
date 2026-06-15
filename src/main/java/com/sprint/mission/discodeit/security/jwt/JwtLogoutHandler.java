@@ -1,5 +1,8 @@
 package com.sprint.mission.discodeit.security.jwt;
 
+import com.sprint.mission.discodeit.mapper.UserMapper;
+import com.sprint.mission.discodeit.repository.UserRepository;
+import com.sprint.mission.discodeit.service.SseService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +21,9 @@ public class JwtLogoutHandler implements LogoutHandler {
 
   private final JwtTokenProvider tokenProvider;
   private final JwtRegistry jwtRegistry;
+  private final SseService sseService;
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
   @Override
   public void logout(HttpServletRequest request, HttpServletResponse response,
@@ -34,6 +40,11 @@ public class JwtLogoutHandler implements LogoutHandler {
           String refreshToken = cookie.getValue();
           UUID userId = tokenProvider.getUserId(refreshToken);
           jwtRegistry.invalidateJwtInformationByUserId(userId);
+
+          // 로그아웃 후 online=false 상태가 반영된 UserDto를 SSE로 브로드캐스트
+          userRepository.findById(userId)
+              .map(userMapper::toDto)
+              .ifPresent(dto -> sseService.broadcast("users.updated", dto));
         });
 
     log.debug("JWT logout handler executed - refresh token cookie cleared");
