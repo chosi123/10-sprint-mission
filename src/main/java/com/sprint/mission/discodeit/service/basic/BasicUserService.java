@@ -10,6 +10,7 @@ import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.event.BinaryContentCreatedEvent;
 import com.sprint.mission.discodeit.event.RoleUpdatedEvent;
+import com.sprint.mission.discodeit.event.UserEvent;
 import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
 import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
@@ -82,7 +83,9 @@ public class BasicUserService implements UserService {
 
     userRepository.save(user);
     log.info("사용자 생성 완료: id={}, username={}", user.getId(), username);
-    return userMapper.toDto(user);
+    UserDto dto = userMapper.toDto(user);
+    applicationEventPublisher.publishEvent(new UserEvent(UserEvent.Action.CREATED, dto));
+    return dto;
   }
 
   @Override
@@ -157,7 +160,9 @@ public class BasicUserService implements UserService {
     user.update(newUsername, newEmail, newPassword, nullableProfile);
 
     log.info("사용자 수정 완료: id={}", userId);
-    return userMapper.toDto(user);
+    UserDto dto = userMapper.toDto(user);
+    applicationEventPublisher.publishEvent(new UserEvent(UserEvent.Action.UPDATED, dto));
+    return dto;
   }
 
   @Transactional
@@ -169,13 +174,15 @@ public class BasicUserService implements UserService {
   )
   public void delete(UUID userId) {
     log.debug("사용자 삭제 시작: id={}", userId);
-    
-    if (!userRepository.existsById(userId)) {
-      throw UserNotFoundException.withId(userId);
-    }
+
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> UserNotFoundException.withId(userId));
+
+    UserDto dto = userMapper.toDto(user);
 
     userRepository.deleteById(userId);
     log.info("사용자 삭제 완료: id={}", userId);
+    applicationEventPublisher.publishEvent(new UserEvent(UserEvent.Action.DELETED, dto));
   }
 
   @Override
@@ -199,6 +206,8 @@ public class BasicUserService implements UserService {
 
     applicationEventPublisher.publishEvent(new RoleUpdatedEvent(request.userId(), beforeRole, request.newRole()));
 
-    return userMapper.toDto(user);
+    UserDto dto = userMapper.toDto(user);
+    applicationEventPublisher.publishEvent(new UserEvent(UserEvent.Action.UPDATED, dto));
+    return dto;
   }
 }

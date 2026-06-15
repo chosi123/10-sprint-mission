@@ -3,7 +3,7 @@ FROM amazoncorretto:17-alpine
 WORKDIR /app
 
 ENV PROJECT_NAME=discodeit
-ENV PROJECT_VERSION=1.2-M8
+ENV PROJECT_VERSION=3.0-M12
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # gradle wrapper 복사 (캐시 활용)
@@ -22,4 +22,4 @@ RUN ./gradlew bootJar -x test
 EXPOSE 80
 
 # JVM 옵션 직접 명시 (핵심)
-ENTRYPOINT ["java", "-jar", "build/libs/discodeit-1.2-M8.jar", "--server.port=80"]
+ENTRYPOINT ["java", "-jar", "build/libs/discodeit-3.0-M12.jar", "--server.port=80"]
