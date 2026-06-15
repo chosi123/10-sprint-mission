@@ -17,12 +17,12 @@ services:
       retries: 5
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - ./backend/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     networks:
       - backend
 
   app:
-    build: .
+    build: ./backend
     container_name: spring-app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
@@ -31,7 +31,7 @@ services:
       AWS_S3_BUCKET: ${AWS_BUCKET_NAME}
       AWS_CREDENTIALS_ACCESS_KEY: ${AWS_ACCESS_KEY}
       AWS_CREDENTIALS_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_S3_REGION: ${AWS_REGION} # 이름을 application.yml에 맞춤
+      AWS_S3_REGION: ${AWS_REGION}
       AWS_S3_PRESIGNED_URL_EXPIRATION: ${AWS_PRESIGNED_URL_EXPIRATION}
       STORAGE_TYPE: ${STORAGE_TYPE}
       JWT_ACCESS_SECRET: bXk2c2VjcmV0a2V5c2VjcmV0a2V5MTIzNDU2Nzg5
@@ -39,18 +39,31 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      broker:
+        condition: service_started
+      redis:
+        condition: service_started
     networks:
       - backend
-    ports:
-      - "8081:80"
     volumes:
       - file-storage:/app/.discodeit/storage
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - backend
+
   broker:
     image: apache/kafka:latest
     hostname: broker
     container_name: broker
     ports:
-      - 9092:9092
+      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
@@ -69,6 +82,7 @@ services:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     networks:
       - backend
+
   redis:
     image: redis:7.2-alpine
     container_name: redis
