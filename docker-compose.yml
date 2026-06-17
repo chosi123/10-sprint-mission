@@ -12,9 +12,11 @@ services:
       - public
       - private
 
-  app:
+  backend:
     build: ./backend
     container_name: spring-app
+    deploy:
+      replicas: 3
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
@@ -38,6 +40,8 @@ services:
       - private
     volumes:
       - file-storage:/app/.discodeit/storage
+    ports:
+      - "8080:8080"
 
   postgres:
     image: postgres:15
