@@ -129,7 +129,7 @@ public class RedisJwtRegistry implements JwtRegistry {
     }
   }
 
-  @Scheduled(fixedDelay = 1000 * 60 * 5)
+  @Scheduled(fixedDelay = 5000 * 60 * 5)
   @Override
   public void clearExpiredJwtInformation() {
     Set<String> userKeys = redisTemplate.keys(USER_JWT_KEY_PREFIX + "*");
