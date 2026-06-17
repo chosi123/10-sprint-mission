@@ -7,6 +7,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
@@ -47,7 +48,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   private AuthorizationChannelInterceptor authorizationChannelInterceptor() {
     AuthorizationManager<org.springframework.messaging.Message<?>> authorizationManager =
         MessageMatcherDelegatingAuthorizationManager.builder()
-            .anyMessage().hasRole(Role.USER.name())
+            .simpTypeMatchers(SimpMessageType.DISCONNECT).permitAll()
+            .anyMessage().hasAnyRole(Role.USER.name(), Role.CHANNEL_MANAGER.name(), Role.ADMIN.name())
             .build();
     return new AuthorizationChannelInterceptor(authorizationManager);
   }
