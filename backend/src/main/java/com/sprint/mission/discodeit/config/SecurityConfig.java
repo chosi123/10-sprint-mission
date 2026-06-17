@@ -5,12 +5,15 @@ import com.sprint.mission.discodeit.entity.Role;
 import com.sprint.mission.discodeit.security.Http403ForbiddenAccessDeniedHandler;
 import com.sprint.mission.discodeit.security.LoginFailureHandler;
 import com.sprint.mission.discodeit.security.SpaCsrfTokenRequestHandler;
-import com.sprint.mission.discodeit.security.jwt.InMemoryJwtRegistry;
+import com.sprint.mission.discodeit.redis.RedisLockProvider;
 import com.sprint.mission.discodeit.security.jwt.JwtAuthenticationFilter;
 import com.sprint.mission.discodeit.security.jwt.JwtLoginSuccessHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtLogoutHandler;
 import com.sprint.mission.discodeit.security.jwt.JwtRegistry;
 import com.sprint.mission.discodeit.security.jwt.JwtTokenProvider;
+import com.sprint.mission.discodeit.security.jwt.RedisJwtRegistry;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
@@ -133,7 +136,13 @@ public class SecurityConfig {
   }
 
   @Bean
-  public JwtRegistry jwtRegistry(JwtTokenProvider jwtTokenProvider) {
-    return new InMemoryJwtRegistry(1, jwtTokenProvider);
+  public JwtRegistry jwtRegistry(
+      @Value("${discodeit.jwt.max-active-count:5}") int maxActiveJwtCount,
+      JwtTokenProvider jwtTokenProvider,
+      RedisTemplate<String, Object> redisTemplate,
+      RedisLockProvider redisLockProvider
+  ) {
+    return new RedisJwtRegistry(maxActiveJwtCount, jwtTokenProvider, redisTemplate,
+        redisLockProvider);
   }
 }
