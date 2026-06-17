@@ -5,10 +5,10 @@ import com.nimbusds.jose.JOSEException;
 import com.sprint.mission.discodeit.dto.data.JwtDto;
 import com.sprint.mission.discodeit.dto.data.JwtInformation;
 import com.sprint.mission.discodeit.exception.ErrorResponse;
+import com.sprint.mission.discodeit.event.UserEvent;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.security.DiscodeitUserDetails;
-import com.sprint.mission.discodeit.service.SseService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +17,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,7 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
   private final ObjectMapper objectMapper;
   private final JwtTokenProvider tokenProvider;
   private final JwtRegistry jwtRegistry;
-  private final SseService sseService;
+  private final KafkaTemplate<String, String> kafkaTemplate;
   private final UserRepository userRepository;
   private final UserMapper userMapper;
 
@@ -66,10 +67,18 @@ public class JwtLoginSuccessHandler implements AuthenticationSuccessHandler {
             )
         );
 
-        // 로그인 후 online 상태가 반영된 UserDto를 SSE로 브로드캐스트
+        // 로그인 후 online 상태가 반영된 UserDto를 Kafka를 통해 모든 인스턴스에 브로드캐스트
         userRepository.findById(userDetails.getId())
             .map(userMapper::toDto)
-            .ifPresent(dto -> sseService.broadcast("users.updated", dto));
+            .ifPresent(dto -> {
+              try {
+                String payload = objectMapper.writeValueAsString(
+                    new UserEvent(UserEvent.Action.UPDATED, dto));
+                kafkaTemplate.send("discodeit.UserEvent", payload);
+              } catch (IOException e) {
+                log.error("로그인 UserEvent Kafka 발행 실패: userId={}", userDetails.getId(), e);
+              }
+            });
 
         log.info("JWT access and refresh tokens issued for user: {}", userDetails.getUsername());
 
